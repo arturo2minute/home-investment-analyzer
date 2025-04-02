@@ -1,3 +1,16 @@
-venv/
-# Ignore environment variables
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 .env
+venv/
+.env/
+
+# Node
+node_modules/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
