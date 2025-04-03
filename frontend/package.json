@@ -14,10 +14,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+  "start": "react-scripts start",
+  "dev": "concurrently \"npm:start\" \"cd ../backend && C:/Python313/python.exe run.py\""
   },
   "eslintConfig": {
     "extends": [
@@ -40,6 +38,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.1",
     "autoprefixer": "^10.4.14",
+    "concurrently": "^9.1.2",
     "postcss": "^8.4.21",
     "postcss-loader": "^7.0.2",
     "tailwindcss": "^4.1.1"
