@@ -1,60 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const mockProperties = [
-  {
-    id: 1,
-    address: "123 Main St, Portland, OR",
-    listing_price: 475000,
-    beds: 3,
-    baths: 2,
-    sqft: 1500,
-  },
-  {
-    id: 2,
-    address: "456 Oak Ave, Eugene, OR",
-    listing_price: 389000,
-    beds: 2,
-    baths: 1,
-    sqft: 1100,
-  },
-  {
-    id: 3,
-    address: "789 Pine Ln, Salem, OR",
-    listing_price: 525000,
-    beds: 4,
-    baths: 3,
-    sqft: 2100,
-  },
-];
 
 export default function SearchPage() {
-  //const [properties, setProperties] = useState(mockProperties);
   const [zipcode, setZipcode] = useState("");
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
   
+  // Extract ZIP from URL query parameters
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const zip = queryParams.get("zipcode");
+    if (zip) {
+      setZipcode(zip);
+      fetchProperties(zip);
+    }
+  }, [location.search]);
+
+  // Gets property data
+  const fetchProperties = async (zip) => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`http://localhost:8000/properties?zipcode=${zip}`);
+      setProperties(res.data);
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Function handles search capabilities
   const handleSearch = async () => {
     console.log("Searching ZIP:", zipcode);
 
     if (!zipcode) return;
 
-    try {
-      setLoading(true);
-
-      // Connect to backend and scrap for given zip code
-      const res = await axios.get(`http://localhost:8000/properties?zipcode=${zipcode}`);
-      console.log("API response:", res.data);
-
-      // Set returned data to property
-      setProperties(res.data);
-
-    } catch (err) {
-      console.error("Error fetching properties:", err);
-    } finally {
-      setLoading(false);
-    }
+    navigate(`/?zipcode=${zipcode}`);
   };
 
   return (
@@ -89,17 +75,29 @@ export default function SearchPage() {
             key={property.id}
             className="bg-white rounded-2xl shadow-lg p-8 border hover:shadow-xl transition transform scale-105"
           >
+            <a
+              href={property.property_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mb-4">
+              <img
+                src={`https://api.microlink.io?url=https://www.realtor.com/realestateandhomes-detail/9459554761&screenshot=true&meta=false&embed=screenshot.url`}
+                alt="Property Preview"
+                className="w-full h-64 object-cover rounded mb-4"
+                onError={(e) => { e.target.src = "/fallback.png"; }}
+              />
+            </a>
             <h2 className="text-x.75 font-semibold text-slate-800 mb-2">
               {property.address}, {property.city}, {property.state}
             </h2>
-            <p className="text-lg font-medium text-green-600">
+            <p className="text-2xl font-medium text-green-600">
               ${property.listing_price.toLocaleString()}
             </p>
             <p className="text-gray-700">
               {property.beds} beds | {property.baths} baths | {property.sqft} sqft
             </p>
             <p className="text-gray-600">
-              {property.lot_sqft} acres | {property.home_type} | Built {property.year_built}
+              {property.lot_sqft} Acres | {property.home_type} | Built {property.year_built}
             </p>
           </div>
         ))}

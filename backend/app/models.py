@@ -23,7 +23,7 @@ class Property(Base):
     baths = Column(Float)
     sqft = Column(Integer)
     lot_sqft = Column(Float)
-    year_built = Column(Integer)
+    year_built = Column(String)
     home_type = Column(String)
     subtype = Column(String)
 

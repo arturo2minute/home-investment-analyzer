@@ -5,8 +5,8 @@ from homeharvest import scrape_property
 
 #--------------------------------- Helper Functions ---------------------------------
 
-def safe_float(value):
-    return None if value is None or (isinstance(value, float) and math.isnan(value)) else value
+def safe_float(val):
+    return 0.0 if val is None or (isinstance(val, float) and math.isnan(val)) else float(val)
 
 def bath_sum(a, b):
     """Safely adds two numbers, treating None/NaN as 0."""
@@ -39,6 +39,21 @@ def acres(lot_sqft):
     except (ValueError, TypeError):
         return None  # or "--"
 
+def land_type(type):
+    if type == "MOBILE":
+        return "Mobile"
+    elif type == "SINGLE_FAMILY":
+        return "Single Family"
+    elif type == "LAND":
+        return "Land"
+    elif type == "MULTI_FAMILY":
+        return "Multi Family"
+
+def add_dash(val):
+    if val == None or val == "" or val == " ":
+        return "--"
+    return val
+
 #--------------------------------- Main Functions ---------------------------------
 def scrape_redfin(zip_code: str):
     listing_type = 'for_sale'
@@ -67,18 +82,18 @@ def scrape_redfin(zip_code: str):
                 "mls": row.get("mls"),
                 "mls_id": row.get("mls_id"),
                 "status": row.get("status"),
-                "home_type": row.get("style"),
+                "home_type": land_type(row.get("style")),
                 "address": remove_none(row.get("street", "Unknown")),
                 "unit": row.get("unit"),
                 "city": row.get("city"),
                 "state": row.get("state"),
                 "zipcode": row.get("zip_code", zip_code),
                 "beds": safe_float(row.get("beds")),
-                "baths": safe_float(bath_sum(row.get("full_baths"), row.get("half_baths"))),
+                "baths": bath_sum(row.get("full_baths"), row.get("half_baths")),
                 "sqft": safe_float(row.get("sqft")),
-                "year_built": safe_float(row.get("year_built")),
-                "listing_price": row.get("list_price"),
-                "listing_date": safe_float(row.get("list_date")),
+                "year_built": add_dash(row.get("year_built")),
+                "listing_price": safe_float(row.get("list_price")),
+                "listing_date": row.get("list_date"),
                 "sold_price": safe_float(row.get("sold_price")),
                 "last_sold_date": row.get("last_sold_date"),
                 "lot_sqft": acres(row.get("lot_sqft")),
