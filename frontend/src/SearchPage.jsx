@@ -13,7 +13,7 @@ const strategies = [
     description: "Purchase a property and rent it out long-term for passive income and appreciation."
   },
   {id: "househack",
-    label: "🧑‍🤝‍🧑 Househack & Hold",
+    label: "🧑‍🤝‍🧑 Househack",
     description: "Live in one part of the property while renting out the rest to reduce living costs."
   },
   {id: "brrrr",
@@ -30,7 +30,7 @@ const strategies = [
   },
   {id: "commercial",
     label: "🏢 Commercial Real Estate",
-    description: "Invest in multifamily, office, or retail properties for stable, large-scale income."
+    description: "Invest in multifamily (5+ units), office, or retail properties for stable, large-scale income."
   }
 ];
 
