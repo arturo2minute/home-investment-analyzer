@@ -4,13 +4,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 const strategies = [
-  {id: "buy_and_rent",
-    label: "🏠 Buy & Rent",
-    description: "Purchase a property and rent it out long-term for passive income and appreciation."
-  },
   {id: "buy_and_Live_and_rent",
     label: "🏠 Buy & Live & Rent",
     description: "Purchase a property, live in the property for owner-occupied financing requirements, rent it out long-term for passive income and appreciation."
+  },
+  {id: "buy_and_rent",
+    label: "🏠 Buy & Rent",
+    description: "Purchase a property and rent it out long-term for passive income and appreciation."
   },
   {id: "househack",
     label: "🧑‍🤝‍🧑 Househack & Hold",
@@ -38,7 +38,7 @@ export default function SearchPage() {
   const [zipcode, setZipcode] = useState("");
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [analysisType, setAnalysisType] = useState("buy_and_hold");
+  const [analysisType, setAnalysisType] = useState("buy_and_Live_and_rent");
   const [openDescriptions, setOpenDescriptions] = useState({});
 
   const navigate = useNavigate();
@@ -85,40 +85,41 @@ export default function SearchPage() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-72 bg-gray-100 border-r p-6 space-y-4 overflow-y-auto">
-      <h2 className="text-xl font-bold text-slate-700 mb-4">Analysis Mode</h2>
-      {strategies.map((s) => {
-        const isOpen = openDescriptions[s.id];
-        const isSelected = analysisType === s.id;
 
-        return (
-          <div key={s.id} className="space-y-1">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => toggleDescription(s.id)}
-                className="p-1 text-gray-600 hover:text-gray-800"
-              >
-                {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              </button>
-              <button
-                onClick={() => setAnalysisType(s.id)}
-                className={`flex-1 text-left py-2 px-3 rounded-md font-medium flex items-center gap-2 ${
-                  isSelected
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-blue-100 text-slate-700"
-                }`}
-              >
-                {s.label}
-              </button>
+      {/* Sidebar */}
+      <aside className="w-72 bg-gray-100 border-r p-6 space-y-4 sticky top-0 h-screen overflow-y-auto">
+        <h2 className="text-xl font-bold text-slate-700 mb-4">Analysis Mode</h2>
+        {strategies.map((s) => {
+          const isOpen = openDescriptions[s.id];
+          const isSelected = analysisType === s.id;
+
+          return (
+            <div key={s.id} className="space-y-1">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => toggleDescription(s.id)}
+                  className="p-1 text-gray-600 hover:text-gray-800"
+                >
+                  {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                <button
+                  onClick={() => setAnalysisType(s.id)}
+                  className={`flex-1 text-left py-2 px-3 rounded-md font-medium flex items-center gap-2 ${
+                    isSelected
+                      ? "bg-blue-600 text-white"
+                      : "hover:bg-blue-100 text-slate-700"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              </div>
+              {isOpen && (
+                <p className="text-sm text-slate-600 px-3">{s.description}</p>
+              )}
             </div>
-            {isOpen && (
-              <p className="text-sm text-slate-600 px-3">{s.description}</p>
-            )}
-          </div>
-        );
-      })}
-    </aside>
+          );
+        })}
+      </aside>
 
       <main className="flex-1 p-6 max-w-7xl mx-auto">
         {/* Header */}
@@ -142,6 +143,22 @@ export default function SearchPage() {
             Search
           </button>
         </div>
+        
+        {/* Use Message */}
+        {!zipcode && properties.length === 0 && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 p-6 rounded-xl mb-10 shadow-sm">
+            <h2 className="text-2xl font-bold mb-2">Welcome to the Home Investment Analyzer! 🏡</h2>
+            <p className="mb-2">
+              This tool helps you evaluate potential real estate deals across multiple investment strategies — like Buy & Hold, BRRRR, Short-Term Rentals, and more.
+            </p>
+            <p className="mb-2">
+              💡 To get started, choose your preferred strategy from the sidebar on the left, then enter a ZIP code above to find and analyze properties in that area.
+            </p>
+            <p>
+              Once results are shown, each property card will give you quick insights based on your selected investment approach.
+            </p>
+          </div>
+        )}
 
         {/* Property Cards */}
         <div className="grid gap-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -174,6 +191,11 @@ export default function SearchPage() {
               <p className="text-gray-600">
                 {property.lot_sqft} Acres | {property.home_type} | Built {property.year_built}
               </p>
+              <button
+                onClick={() => navigate(`/property/${property.id}`)}
+                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                View Deal
+              </button>
             </div>
           ))}
         </div>
