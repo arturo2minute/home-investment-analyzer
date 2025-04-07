@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, CircleHelp } from "lucide-react";
 
 const strategies = [
   {id: "buy_and_Live_and_rent",
@@ -29,7 +29,7 @@ const strategies = [
     description: "List the property on Airbnb or similar platforms for nightly income."
   },
   {id: "commercial",
-    label: "🏢 Commercial Real Estate",
+    label: "🏢 Commercial",
     description: "Invest in multifamily (5+ units), office, or retail properties for stable, large-scale income."
   }
 ];
@@ -97,20 +97,18 @@ export default function SearchPage() {
             <div key={s.id} className="space-y-1">
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => toggleDescription(s.id)}
-                  className="p-1 text-gray-600 hover:text-gray-800"
-                >
-                  {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </button>
-                <button
                   onClick={() => setAnalysisType(s.id)}
                   className={`flex-1 text-left py-2 px-3 rounded-md font-medium flex items-center gap-2 ${
                     isSelected
                       ? "bg-blue-600 text-white"
                       : "hover:bg-blue-100 text-slate-700"
-                  }`}
-                >
+                  }`}>
                   {s.label}
+                </button>
+                <button
+                  onClick={() => toggleDescription(s.id)}
+                  className="p-1 text-gray-600 hover:text-gray-800">
+                  {isOpen ? <CircleHelp size={16} /> : <CircleHelp size={16} />}
                 </button>
               </div>
               {isOpen && (
@@ -192,9 +190,9 @@ export default function SearchPage() {
                 {property.lot_sqft} Acres | {property.home_type} | Built {property.year_built}
               </p>
               <button
-                onClick={() => navigate(`/property/${property.id}`)}
+                onClick={() => navigate(`/property/${property.id}/${analysisType}`)}
                 className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                View Deal
+                Analyze Deal
               </button>
             </div>
           ))}
