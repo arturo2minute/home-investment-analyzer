@@ -85,7 +85,6 @@ export default function SearchPage() {
 
   return (
     <div className="flex min-h-screen">
-
       {/* Sidebar */}
       <aside className="w-72 bg-gray-100 border-r p-6 space-y-4 sticky top-0 h-screen overflow-y-auto">
         <h2 className="text-xl font-bold text-slate-700 mb-4">Analysis Mode</h2>
