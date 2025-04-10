@@ -20,24 +20,26 @@ def get_db():
 
 @router.get("/properties")
 def get_properties(zipcode: str, db: Session = Depends(get_db)):
-    listings = scrape_redfin(zipcode, 'for_sale', 35)
+    # listings = scrape_redfin(zipcode, 'for_sale', 35)
 
-    print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
+    # listings = scrape_redfin(zipcode)
 
-    if not listings:
-        return []
+    # print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
+
+    # if not listings:
+    #     return []
     
-    for home in listings:
-        # Ensure home doenst already exist in database
-        # home["zipcode"] = zipcode
-        try:
-            db.add(Property(**home))
-            db.commit()
-        except IntegrityError:
-            db.rollback()
-            print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
+    # for home in listings:
+    #     # Ensure home doenst already exist in database
+    #     # home["zipcode"] = zipcode
+    #     try:
+    #         db.add(Property(**home))
+    #         db.commit()
+    #     except IntegrityError:
+    #         db.rollback()
+    #         print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
 
-    db.commit()
+    # db.commit()
 
     # Return Properties from database
     properties = db.query(Property).filter(Property.zipcode == zipcode).all()
@@ -84,7 +86,6 @@ def analyze_buy_rent_deal(inputs: DealInputs):
     coc_return = (annual_cash_flow / inputs.down_payment) * 100 if inputs.down_payment > 0 else 0
     monthly_cash_flow = (noi / 12) - inputs.monthly_mortgage
 
-    # Return results with intermediate values, rounded to 2 decimal places
     return {
         "noi": round(noi, 2),
         "cap_rate": round(cap_rate, 2),
