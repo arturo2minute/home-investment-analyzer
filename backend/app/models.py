@@ -19,11 +19,11 @@ class Property(Base):
     listing_terms = Column(String)
     status = Column(String)
 
-    beds = Column(Float)
+    beds = Column(String)
     baths = Column(Float)
     sqft = Column(Integer)
-    lot_sqft = Column(Float)
-    year_built = Column(String)
+    lot_size = Column(Float)
+    year_built = Column(Integer)
     home_type = Column(String)
     subtype = Column(String)
 
@@ -67,7 +67,7 @@ class Property(Base):
             "beds": self.beds,
             "baths": self.baths,
             "sqft": self.sqft,
-            "lot_sqft": self.lot_sqft,
+            "lot_size": self.lot_size,
             "year_built": self.year_built,
             "home_type": self.home_type,
             "subtype": self.subtype,

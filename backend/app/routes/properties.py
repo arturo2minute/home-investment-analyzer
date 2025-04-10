@@ -20,24 +20,24 @@ def get_db():
 
 @router.get("/properties")
 def get_properties(zipcode: str, db: Session = Depends(get_db)):
-    # listings = scrape_redfin(zipcode)
+    listings = scrape_redfin(zipcode, 'for_sale', 35)
 
-    # print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
+    print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
 
-    # if not listings:
-    #     return []
+    if not listings:
+        return []
     
-    # for home in listings:
-    #     # Ensure home doenst already exist in database
-    #     # home["zipcode"] = zipcode
-    #     try:
-    #         db.add(Property(**home))
-    #         db.commit()
-    #     except IntegrityError:
-    #         db.rollback()
-    #         print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
+    for home in listings:
+        # Ensure home doenst already exist in database
+        # home["zipcode"] = zipcode
+        try:
+            db.add(Property(**home))
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
 
-    # db.commit()
+    db.commit()
 
     # Return Properties from database
     properties = db.query(Property).filter(Property.zipcode == zipcode).all()
@@ -56,6 +56,7 @@ def get_property_by_id(property_id: int, db: Session = Depends(get_db)):
 # Pydantic model for input validation
 class DealInputs(BaseModel):
     purchase_price: float
+    down_payment: float
     monthly_rent: float
     monthly_mortgage: float
     yearly_taxes: float
@@ -63,11 +64,10 @@ class DealInputs(BaseModel):
     maintenance: float
     vacancy: float
     repairs: float
-    down_payment: float
 
 # Endpoint to analyze the deal
-@router.post("/analyze-deal")
-def analyze_deal(inputs: DealInputs):
+@router.post("/analyze-buy-rent-deal")
+def analyze_buy_rent_deal(inputs: DealInputs):
     # Calculations with intermediate values
     annual_gross_income = inputs.monthly_rent * 12
     annual_operating_expenses = (
@@ -98,3 +98,26 @@ def analyze_deal(inputs: DealInputs):
         "annual_mortgage": round(annual_mortgage, 2),
         "monthly_mortgage": round(inputs.monthly_mortgage, 2)  # Already available from inputs
     }
+
+# # Pydantic model for input validation
+# class ComparableInputs(BaseModel):
+#     zipcode: str
+#     property_type: str
+#     sqft: int
+#     beds: int
+#     baths: float
+#     lot_size: float
+#     year_built: int
+
+# # Endpoint to get comps
+# @router.post("/analyze-buy-rent-deal")
+# def get_comparables(inputs: ComparableInputs):
+#     return {
+#         "zipcode": "97478",
+#         "property_type": "Single Family",
+#         "sqft": 1245,
+#         "beds": 3,
+#         "baths": 1.5,
+#         "lot_size": .33,
+#         "year_built": 1971
+#     }

@@ -25,16 +25,16 @@ def remove_none(val):
 
     return " ".join(cleaned_words) if cleaned_words else "--"
 
-def acres(lot_sqft):
+def acres(lot_size):
     """
     Converts lot size in square feet to acres.
     1 acre = 43,560 square feet
     """
-    if not lot_sqft or lot_sqft == 0:
+    if not lot_size or lot_size == 0:
         return 0
 
     try:
-        acres = float(lot_sqft) / 43560
+        acres = float(lot_size) / 43560
         return round(acres, 4)
     except (ValueError, TypeError):
         return None  # or "--"
@@ -55,15 +55,13 @@ def add_dash(val):
     return val
 
 #--------------------------------- Main Functions ---------------------------------
-def scrape_redfin(zip_code: str):
-    listing_type = 'for_sale'
-    past_days = 35
+def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
 
     try:
         listings = scrape_property(
             location=zip_code,
-            listing_type=listing_type,
-            past_days=past_days
+            listing_type=listingtype,
+            past_days=pastdays
         )
 
         # Transform into list of dicts
@@ -96,7 +94,7 @@ def scrape_redfin(zip_code: str):
                 "listing_date": row.get("list_date"),
                 "sold_price": safe_float(row.get("sold_price")),
                 "last_sold_date": row.get("last_sold_date"),
-                "lot_sqft": acres(row.get("lot_sqft")),
+                "lot_size": acres(row.get("lot_size")),
                 "price_per_sqft": safe_float(row.get("price_per_sqft")),
                 "latitude": safe_float(row.get("latitude")),
                 "longitude": safe_float(row.get("longitude")),

@@ -186,7 +186,7 @@ export default function SearchPage() {
                 {property.beds} beds | {property.baths} baths | {property.sqft} sqft
               </p>
               <p className="text-gray-600">
-                {property.lot_sqft} Acres | {property.home_type} | Built {property.year_built}
+                {property.lot_size} Acres | {property.home_type} | Built {property.year_built}
               </p>
               <button
                 onClick={() => navigate(`/property/${property.id}/${analysisType}`)}

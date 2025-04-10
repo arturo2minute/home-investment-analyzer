@@ -23,14 +23,14 @@ export default function BuyRent() {
 
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
+    down_payment: 20000,
     monthly_rent: 2600,
     monthly_mortgage: 1650,
     yearly_taxes: 2400,
     yearly_insurance: 1100,
     maintenance: 600,
     vacancy: 600,
-    repairs: 8000,
-    down_payment: 20000
+    repairs: 8000
 });
 
   // Gather general property info from database
@@ -58,7 +58,7 @@ export default function BuyRent() {
   // Handle deal analysis
   const handleAnalyzeDeal = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/analyze-deal', inputs);
+      const response = await axios.post('http://localhost:8000/analyze-buy-rent-deal', inputs);
       setAnalysis(response.data); // Store results for display
     } catch (error) {
       console.error('Error analyzing deal:', error);
@@ -99,7 +99,7 @@ export default function BuyRent() {
               <p className="flex items-center gap-2"><Bath size={16} /> <strong>Baths:</strong> {property.baths}</p>
               <p className="flex items-center gap-2"><Layers size={16} /><strong>Stories:</strong> {property.stories}</p>
               <p className="flex items-center gap-2"><Building2 size={16} /><strong>Type:</strong> {property.home_type}</p>
-              <p className="flex items-center gap-2"><LandPlot size={16} /><strong>Lot:</strong> {property.lot_sqft} Acres</p>
+              <p className="flex items-center gap-2"><LandPlot size={16} /><strong>Lot:</strong> {property.lot_size} Acres</p>
               <p className="flex items-center gap-2"><DollarSign size={16} /><strong>HOA Fee:</strong> ${property.hoa_fee}</p>
             </div>
             <div>
@@ -137,14 +137,13 @@ export default function BuyRent() {
         {/* Top Sections */}
         <div className="flex flex-col lg:flex-row gap-8 mb-10 px-6 items-stretch">
           {/* Carousel Section */}
-          <div className="flex-1 max-w-4xl mx-auto">
+          <div className="flex-1 max-w-4xl mx-auto h-full">
             <Swiper
               modules={[Navigation]}
               navigation
               spaceBetween={10}
               slidesPerView={1}
-              className="rounded-xl shadow"
-            >
+              className="rounded-xl shadow h-full">
               {mockImages.map((img, idx) => (
                 <SwiperSlide key={idx}>
                   <img
@@ -160,7 +159,6 @@ export default function BuyRent() {
           {/* Deal Inputs Section */}
           <div className="bg-white p-6 rounded-xl shadow border w-full lg:w-1/3 flex flex-col justify-between h-full">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Deal Inputs</h2>
-
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: "Purchase Price", name: "purchase_price" },
@@ -183,12 +181,10 @@ export default function BuyRent() {
                     value={inputs[field.name]}
                     onChange={handleInputChange}
                     className="w-full border rounded px-3 py-2 text-sm"
-                    placeholder="$0"
-                  />
+                    placeholder="$0"/>
                 </div>
               ))}
             </div>
-            {/* Analyze Deal Button */}
             <div className="mt-4">
               <button
                 onClick={handleAnalyzeDeal}
