@@ -20,32 +20,140 @@ def get_db():
 
 @router.get("/properties")
 def get_properties(zipcode: str, db: Session = Depends(get_db)):
-    # listings = scrape_redfin(zipcode, 'for_sale', 35)
+    print(f"[DEBUG] Received zipcode: {zipcode}")
+    # static_listings = [
+    #     {
+    #         "address": "123 Main St",
+    #         "zipcode": zipcode,  # Use input zipcode to simulate dynamic behavior
+    #         "city": "Springfield",
+    #         "state": "OR",
+    #         "listing_price": 350000,
+    #         "listing_date": "2025-04-01",
+    #         "listing_terms": "Cash or Conventional",
+    #         "status": "Active",
+    #         "beds": "3",
+    #         "baths": 2.5,
+    #         "sqft": 1500,
+    #         "lot_size": 0.15,
+    #         "year_built": 1990,
+    #         "home_type": "Single Family",
+    #         "subtype": "Residential",
+    #         "property_url": "https://example.com/property/123",
+    #         "mls": "MLS123",
+    #         "mls_id": "123456",
+    #         "sold_price": 340000,
+    #         "last_sold_date": "2024-06-15",
+    #         "price_per_sqft": 233.33,
+    #         "latitude": 44.0462,
+    #         "longitude": -123.0221,
+    #         "stories": 2,
+    #         "has_hoa": False,
+    #         "hoa_fee": 0,
+    #         "parking_garage": "2 Car Garage",
+    #         "sewer": "Public Sewer",
+    #         "water": "Public",
+    #         "utilities": "Electricity, Gas",
+    #         "annual_tax": 3500.75,
+    #         "unit": None,
+    #         "style": "Contemporary"
+    #     },
+    #     {
+    #         "address": "1234 Main St",
+    #         "zipcode": zipcode,  # Use input zipcode to simulate dynamic behavior
+    #         "city": "Springfield",
+    #         "state": "OR",
+    #         "listing_price": 350000,
+    #         "listing_date": "2025-04-01",
+    #         "listing_terms": "Cash or Conventional",
+    #         "status": "Active",
+    #         "beds": "3",
+    #         "baths": 2.5,
+    #         "sqft": 1500,
+    #         "lot_size": 0.15,
+    #         "year_built": 1990,
+    #         "home_type": "Single Family",
+    #         "subtype": "Residential",
+    #         "property_url": "https://example.com/property/123",
+    #         "mls": "MLS123",
+    #         "mls_id": "123456",
+    #         "sold_price": 340000,
+    #         "last_sold_date": "2024-06-15",
+    #         "price_per_sqft": 233.33,
+    #         "latitude": 44.0462,
+    #         "longitude": -123.0221,
+    #         "stories": 2,
+    #         "has_hoa": False,
+    #         "hoa_fee": 0,
+    #         "parking_garage": "2 Car Garage",
+    #         "sewer": "Public Sewer",
+    #         "water": "Public",
+    #         "utilities": "Electricity, Gas",
+    #         "annual_tax": 3500.75,
+    #         "unit": None,
+    #         "style": "Contemporary"
+    #     },
+    #     {
+    #         "address": "12345 Main St",
+    #         "zipcode": zipcode,  # Use input zipcode to simulate dynamic behavior
+    #         "city": "Springfield",
+    #         "state": "OR",
+    #         "listing_price": 350000,
+    #         "listing_date": "2025-04-01",
+    #         "listing_terms": "Cash or Conventional",
+    #         "status": "Active",
+    #         "beds": "3",
+    #         "baths": 2.5,
+    #         "sqft": 1500,
+    #         "lot_size": 0.15,
+    #         "year_built": 1990,
+    #         "home_type": "Single Family",
+    #         "subtype": "Residential",
+    #         "property_url": "https://example.com/property/123",
+    #         "mls": "MLS123",
+    #         "mls_id": "123456",
+    #         "sold_price": 340000,
+    #         "last_sold_date": "2024-06-15",
+    #         "price_per_sqft": 233.33,
+    #         "latitude": 44.0462,
+    #         "longitude": -123.0221,
+    #         "stories": 2,
+    #         "has_hoa": False,
+    #         "hoa_fee": 0,
+    #         "parking_garage": "2 Car Garage",
+    #         "sewer": "Public Sewer",
+    #         "water": "Public",
+    #         "utilities": "Electricity, Gas",
+    #         "annual_tax": 3500.75,
+    #         "unit": None,
+    #         "style": "Contemporary"
+    #     }
+    # ]
 
-    # listings = scrape_redfin(zipcode)
+    listings = scrape_redfin(zipcode, 'for_sale', 35)
 
-    # print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
+    print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
 
-    # if not listings:
-    #     return []
+    if not listings:
+        return []
     
-    # for home in listings:
-    #     # Ensure home doenst already exist in database
-    #     # home["zipcode"] = zipcode
-    #     try:
-    #         db.add(Property(**home))
-    #         db.commit()
-    #     except IntegrityError:
-    #         db.rollback()
-    #         print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
+    for home in listings:
+        # Ensure home doenst already exist in database
+        # home["zipcode"] = zipcode
+        try:
+            db.add(Property(**home))
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
 
-    # db.commit()
+    db.commit()
 
     # Return Properties from database
     properties = db.query(Property).filter(Property.zipcode == zipcode).all()
     print(f"[QUERY RESULT] {properties}")
 
     return [prop.to_dict() for prop in properties]
+    # return [home for home in static_listings]
 
 
 @router.get("/property/{property_id}/{strategy}")

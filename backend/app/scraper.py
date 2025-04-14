@@ -86,21 +86,29 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
                 "city": row.get("city"),
                 "state": row.get("state"),
                 "zipcode": row.get("zip_code", zip_code),
-                "beds": safe_float(row.get("beds")),
+                "beds": str(safe_float(row.get("beds"))),  # Convert to string
                 "baths": bath_sum(row.get("full_baths"), row.get("half_baths")),
-                "sqft": safe_float(row.get("sqft")),
-                "year_built": add_dash(row.get("year_built")),
-                "listing_price": safe_float(row.get("list_price")),
+                "sqft": int(safe_float(row.get("sqft"))) if safe_float(row.get("sqft")) else None,  # Convert to int
+                "year_built": int(row.get("year_built")) if row.get("year_built") and row.get("year_built") != "--" else None,  # Convert to int
+                "listing_price": int(safe_float(row.get("list_price"))) if safe_float(row.get("list_price")) else None,  # Convert to int
                 "listing_date": row.get("list_date"),
-                "sold_price": safe_float(row.get("sold_price")),
+                "listing_terms": None,  # Add default or fetch from data if available
+                "sold_price": int(safe_float(row.get("sold_price"))) if safe_float(row.get("sold_price")) else None,  # Convert to int
                 "last_sold_date": row.get("last_sold_date"),
                 "lot_size": acres(row.get("lot_size")),
                 "price_per_sqft": safe_float(row.get("price_per_sqft")),
                 "latitude": safe_float(row.get("latitude")),
                 "longitude": safe_float(row.get("longitude")),
-                "stories": safe_float(row.get("stories")),
-                "hoa_fee": safe_float(row.get("hoa_fee")),
+                "stories": int(safe_float(row.get("stories"))) if safe_float(row.get("stories")) else None,  # Convert to int
+                "has_hoa": False,  # Default, update if data available
+                "hoa_fee": int(safe_float(row.get("hoa_fee"))) if safe_float(row.get("hoa_fee")) else None,  # Convert to int
                 "parking_garage": row.get("parking_garage"),
+                "sewer": None,  # Add default or fetch from data
+                "water": None,  # Add default or fetch from data
+                "utilities": None,  # Add default or fetch from data
+                "annual_tax": None,  # Add default or fetch from data
+                "subtype": None,  # Add default or fetch from data
+                "style": row.get("style")  # Use raw style or map to appropriate value
             })
 
         return results
