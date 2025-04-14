@@ -204,10 +204,10 @@ export default function SearchPage() {
                 ${property.listing_price.toLocaleString()}
               </p>
               <p className="text-gray-700">
-                {property.beds} beds | {property.baths} baths | {property.sqft} sqft
+              {property.beds === 0 ? "--" : property.beds} beds | {property.baths === 0 ? "--" : property.baths} baths | {property.sqft === 0 ? "--" : property.sqft} sqft
               </p>
               <p className="text-gray-600">
-                {property.lot_size} Acres | {property.home_type} | Built {property.year_built}
+              {property.lot_size === 0 ? "--" : property.lot_size} Acres | {property.home_type} | Built {property.year_built === 0 ? "N/A" : property.year_built}
               </p>
               <button
                 onClick={() => navigate(`/property/${property.id}/${analysisType}`)}

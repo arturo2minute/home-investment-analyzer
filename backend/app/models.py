@@ -20,7 +20,7 @@ class Property(Base):
     listing_terms = Column(String)
     status = Column(String)
 
-    beds = Column(String)
+    beds = Column(Float)
     baths = Column(Float)
     sqft = Column(Integer)
     lot_size = Column(Float)

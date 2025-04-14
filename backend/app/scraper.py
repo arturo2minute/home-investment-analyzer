@@ -96,7 +96,7 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
                 "listing_terms": None,
                 "status": row.get("status"),
 
-                "beds": row.get("beds"),
+                "beds": safe_float(row.get("beds")),
                 "baths": bath_sum(row.get("full_baths"), row.get("half_baths")),
                 "sqft": int(safe_float(row.get("sqft"))),
                 "lot_size": acres(row.get("lot_sqft")),
