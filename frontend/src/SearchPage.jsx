@@ -40,6 +40,7 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [analysisType, setAnalysisType] = useState("buy_and_Live_and_rent");
   const [openDescriptions, setOpenDescriptions] = useState({});
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -85,8 +86,28 @@ export default function SearchPage() {
 
   return (
     <div className="flex min-h-screen">
+      {/* Mobile Sidebar Toggle */}
+      <div className="md:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg">
+          ☰
+        </button>
+      </div>
+
+
       {/* Sidebar */}
-      <aside className="w-72 bg-gray-100 border-r p-6 space-y-4 sticky top-0 h-screen overflow-y-auto">
+      <aside className={`fixed md:sticky top-0 left-0 md:h-screen min-h-screen bg-gray-100 border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out
+                        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
+        {/* Close button for mobile */}
+        <div className="md:hidden flex justify-end mb-4">
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="text-slate-700 hover:text-slate-900">
+            ✕
+          </button>
+        </div>
+
         <h2 className="text-xl font-bold text-slate-700 mb-4">Analysis Mode</h2>
         {strategies.map((s) => {
           const isOpen = openDescriptions[s.id];

@@ -30,14 +30,23 @@ def acres(lot_size):
     Converts lot size in square feet to acres.
     1 acre = 43,560 square feet
     """
-    if not lot_size or lot_size == 0:
-        return 0
-
+    print(lot_size)
+    if not lot_size:
+        return 0.0
+    
     try:
-        acres = float(lot_size) / 43560
-        return round(acres, 4)
+        # Remove commas and any non-digit characters except dot
+        clean_lot = (
+            str(lot_size)
+            .replace(",", "")
+            .replace("sqft", "")
+            .replace("acres", "")
+            .strip()
+        )
+        sqft = float(clean_lot)
+        return round(sqft / 43560, 4)
     except (ValueError, TypeError):
-        return None  # or "--"
+        return 0.0
 
 def land_type(type):
     if type == "MOBILE":
@@ -76,39 +85,43 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
             address = " ".join(address_parts) if address_parts else "--"
 
             results.append({
+                "address": remove_none(row.get("street", "Unknown")),
+                "zipcode": row.get("zip_code", zip_code),
+                "state": row.get("state"),
+                "city": row.get("city"),
+                "unit": row.get("unit"),
+
+                "listing_price": int(safe_float(row.get("list_price"))),
+                "listing_date": row.get("list_date"),
+                "listing_terms": None,
+                "status": row.get("status"),
+
+                "beds": row.get("beds"),
+                "baths": bath_sum(row.get("full_baths"), row.get("half_baths")),
+                "sqft": int(safe_float(row.get("sqft"))),
+                "lot_size": acres(row.get("lot_sqft")),
+                "year_built": int(safe_float(row.get("year_built"))),
+                "home_type": land_type(row.get("style")),
+                "subtype": None,
+
                 "property_url": row.get("property_url"),
                 "mls": row.get("mls"),
                 "mls_id": row.get("mls_id"),
-                "status": row.get("status"),
-                "home_type": land_type(row.get("style")),
-                "address": remove_none(row.get("street", "Unknown")),
-                "unit": row.get("unit"),
-                "city": row.get("city"),
-                "state": row.get("state"),
-                "zipcode": row.get("zip_code", zip_code),
-                "beds": str(safe_float(row.get("beds"))),  # Convert to string
-                "baths": bath_sum(row.get("full_baths"), row.get("half_baths")),
-                "sqft": int(safe_float(row.get("sqft"))) if safe_float(row.get("sqft")) else None,  # Convert to int
-                "year_built": int(row.get("year_built")) if row.get("year_built") and row.get("year_built") != "--" else None,  # Convert to int
-                "listing_price": int(safe_float(row.get("list_price"))) if safe_float(row.get("list_price")) else None,  # Convert to int
-                "listing_date": row.get("list_date"),
-                "listing_terms": None,  # Add default or fetch from data if available
-                "sold_price": int(safe_float(row.get("sold_price"))) if safe_float(row.get("sold_price")) else None,  # Convert to int
+                "sold_price": int(safe_float(row.get("sold_price"))),
                 "last_sold_date": row.get("last_sold_date"),
-                "lot_size": acres(row.get("lot_size")),
+
                 "price_per_sqft": safe_float(row.get("price_per_sqft")),
                 "latitude": safe_float(row.get("latitude")),
                 "longitude": safe_float(row.get("longitude")),
-                "stories": int(safe_float(row.get("stories"))) if safe_float(row.get("stories")) else None,  # Convert to int
-                "has_hoa": False,  # Default, update if data available
-                "hoa_fee": int(safe_float(row.get("hoa_fee"))) if safe_float(row.get("hoa_fee")) else None,  # Convert to int
+                "stories": int(safe_float(row.get("stories"))),
+                
+                "has_hoa": True if safe_float(row.get("hoa_fee")) > 0 else False,
+                "hoa_fee": int(safe_float(row.get("hoa_fee"))),
                 "parking_garage": row.get("parking_garage"),
-                "sewer": None,  # Add default or fetch from data
-                "water": None,  # Add default or fetch from data
-                "utilities": None,  # Add default or fetch from data
-                "annual_tax": None,  # Add default or fetch from data
-                "subtype": None,  # Add default or fetch from data
-                "style": row.get("style")  # Use raw style or map to appropriate value
+                "sewer": None,
+                "water": None,
+                "utilities": None,
+                "annual_tax": None,
             })
 
         return results
@@ -116,3 +129,20 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
     except Exception as e:
         print(f"[ERROR] Scraping failed: {e}")
         return []
+    
+
+# if __name__ == "__main__":
+#     # 🔧 Set test inputs
+#     test_zip = "97478"
+#     test_listing_type = "for_sale"  # or "sold", "pending"
+#     test_days = 7
+
+#     # 🔍 Run the scraper and inspect results
+#     print("Scraping...")
+#     properties = scrape_redfin(test_zip, test_listing_type, test_days)
+
+#     # 🧪 Print first result (or all)
+#     for i, prop in enumerate(properties[:3]):  # Limit for readability
+#         print(f"\n--- Property #{i+1} ---")
+#         for k, v in prop.items():
+#             print(f"{k}: {v}")

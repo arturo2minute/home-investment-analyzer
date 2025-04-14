@@ -11,8 +11,9 @@ class Property(Base):
     id = Column(Integer, primary_key=True, index=True)
     address = Column(String, nullable=False)
     zipcode = Column(String, nullable=False)
-    city = Column(String)
     state = Column(String)
+    city = Column(String)
+    unit = Column(String)
 
     listing_price = Column(Integer)
     listing_date = Column(String)
@@ -45,8 +46,6 @@ class Property(Base):
     water = Column(String)
     utilities = Column(String)
     annual_tax = Column(Float)
-    unit = Column(String)
-    style = Column(String)
 
     __table_args__ = (
         UniqueConstraint('address', 'zipcode', name='uix_address_zipcode'),
@@ -88,5 +87,4 @@ class Property(Base):
             "utilities": self.utilities,
             "annual_tax": self.annual_tax,
             "unit": self.unit,
-            "style": self.style,
         }
