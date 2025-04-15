@@ -1,7 +1,7 @@
 # scraper.py
 import math
 import requests
-from homeharvest import scrape_property
+from homeharvest import scrape_property # type: ignore
 
 #--------------------------------- Helper Functions ---------------------------------
 

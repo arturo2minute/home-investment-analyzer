@@ -139,7 +139,7 @@ export default function SearchPage() {
         })}
       </aside>
 
-      <main className="flex-1 p-6 max-w-7xl mx-auto">
+      <main className="flex-1 p-6 max-w-7xl mx-auto pt-20 md:pt-6">
         {/* Header */}
         <h1 className="text-3xl font-bold mb-4 text-center text-slate-700">
           Home Investment Analyzer
