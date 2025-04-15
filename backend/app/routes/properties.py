@@ -1,10 +1,11 @@
 # properties.py
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionLocal
 from app.models import Property
-from app.scraper import scrape_redfin
+from app.scraper import scrape_realtor_dot_com
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -22,31 +23,30 @@ def get_db():
 def get_properties(zipcode: str, db: Session = Depends(get_db)):
     # print(f"[DEBUG] Received zipcode: {zipcode}")
 
-    listings = scrape_redfin(zipcode, 'for_sale', 35)
+    # listings = scrape_realtor_dot_com(zipcode, 'for_sale', 20)
 
-    print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
+    # print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
 
-    if not listings:
-        return []
+    # if not listings:
+    #     return []
     
-    for home in listings:
-        # Ensure home doenst already exist in database
-        # home["zipcode"] = zipcode
-        try:
-            db.add(Property(**home))
-            db.commit()
-        except IntegrityError:
-            db.rollback()
-            print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
+    # for home in listings:
+    #     # Ensure home doenst already exist in database
+    #     # home["zipcode"] = zipcode
+    #     try:
+    #         db.add(Property(**home))
+    #         db.commit()
+    #     except IntegrityError:
+    #         db.rollback()
+    #         print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
 
-    db.commit()
+    # db.commit()
 
     # Return Properties from database
     properties = db.query(Property).filter(Property.zipcode == zipcode).all()
     print(f"[QUERY RESULT] {properties}")
 
     return [prop.to_dict() for prop in properties]
-    # return [home for home in static_listings]
 
 
 @router.get("/property/{property_id}/{strategy}")

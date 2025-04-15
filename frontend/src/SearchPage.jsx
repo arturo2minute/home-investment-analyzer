@@ -191,11 +191,12 @@ export default function SearchPage() {
                 rel="noopener noreferrer"
                 className="block mb-4">
                 <img
-                  src={`https://api.microlink.io?url=https://www.realtor.com/realestateandhomes-detail/9459554761&screenshot=true&meta=false&embed=screenshot.url`}
-                  alt="Property Preview"
+                  src={property.image_url || "/fallback.png"}
+                  alt={`${property.address} Preview`}
                   className="w-full h-64 object-cover rounded mb-4"
-                  onError={(e) => { e.target.src = "/fallback.png"; }}
-                />
+                  onError={(e) => {
+                    e.target.src = "/fallback.png"; // Fallback if image fails to load
+                  }}/>
               </a>
               <h2 className="text-x.75 font-semibold text-slate-800 mb-2">
                 {property.address}, {property.city}, {property.state}

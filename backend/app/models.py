@@ -28,6 +28,7 @@ class Property(Base):
     home_type = Column(String)
     subtype = Column(String)
 
+    image_url = Column(String)
     property_url = Column(String)
     mls = Column(String)
     mls_id = Column(String)
@@ -70,6 +71,7 @@ class Property(Base):
             "year_built": self.year_built,
             "home_type": self.home_type,
             "subtype": self.subtype,
+            "image_url": self.image_url,
             "property_url": self.property_url,
             "mls": self.mls,
             "mls_id": self.mls_id,

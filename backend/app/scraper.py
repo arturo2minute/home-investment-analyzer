@@ -30,7 +30,6 @@ def acres(lot_size):
     Converts lot size in square feet to acres.
     1 acre = 43,560 square feet
     """
-    print(lot_size)
     if not lot_size:
         return 0.0
     
@@ -63,8 +62,24 @@ def add_dash(val):
         return "--"
     return val
 
+def get_property_image(property_url):
+    """
+    Fetch the Open Graph image URL for a given property URL using Microlink.
+    Returns a fallback image URL if no image is found.
+    """
+    microlink_url = f"https://api.microlink.io/?url={property_url}"
+    try:
+        response = requests.get(microlink_url)
+        response.raise_for_status()  # Raise an error for bad responses
+        data = response.json()
+        # Extract the image URL from the response, default to fallback if missing
+        return data.get("data", {}).get("image", {}).get("url", "/fallback.png")
+    except requests.RequestException as e:
+        print(f"Error fetching image for {property_url}: {e}")
+        return "/fallback.png"
+
 #--------------------------------- Main Functions ---------------------------------
-def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
+def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
 
     try:
         listings = scrape_property(
@@ -83,6 +98,7 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
             city = row.get("city")
             address_parts = [part for part in [street, unit, city] if part and str(part).strip()]
             address = " ".join(address_parts) if address_parts else "--"
+            image_url = get_property_image(row.get("property_url"))
 
             results.append({
                 "address": remove_none(row.get("street", "Unknown")),
@@ -104,6 +120,7 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
                 "home_type": land_type(row.get("style")),
                 "subtype": None,
 
+                "image_url": image_url,
                 "property_url": row.get("property_url"),
                 "mls": row.get("mls"),
                 "mls_id": row.get("mls_id"),
@@ -131,6 +148,28 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
         return []
     
 
+# # Function to fetch the Open Graph image URL using Microlink
+# def get_property_image(property_url):
+#     """
+#     Fetch the Open Graph image URL for a given property URL using Microlink.
+#     Returns a fallback image URL if no image is found.
+#     """
+#     microlink_url = f"https://api.microlink.io/?url={property_url}"
+#     try:
+#         response = requests.get(microlink_url)
+#         response.raise_for_status()  # Raise an error for bad responses
+#         data = response.json()
+#         # Extract the image URL from the response, default to fallback if missing
+#         return data.get("data", {}).get("image", {}).get("url", "/fallback.png")
+#     except requests.RequestException as e:
+#         print(f"Error fetching image for {property_url}: {e}")
+#         return "/fallback.png"
+    
+
+# if __name__ == "__main__":
+#     url = 'https://www.realtor.com/realestateandhomes-detail/2721082437'
+#     print(get_property_image(url))
+    
 # if __name__ == "__main__":
 #     # 🔧 Set test inputs
 #     test_zip = "97478"
@@ -139,7 +178,7 @@ def scrape_redfin(zip_code: str, listingtype: str, pastdays: int):
 
 #     # 🔍 Run the scraper and inspect results
 #     print("Scraping...")
-#     properties = scrape_redfin(test_zip, test_listing_type, test_days)
+#     properties = scrape_realtor_dot_com(test_zip, test_listing_type, test_days)
 
 #     # 🧪 Print first result (or all)
 #     for i, prop in enumerate(properties[:3]):  # Limit for readability
