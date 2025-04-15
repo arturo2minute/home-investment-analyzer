@@ -1,10 +1,8 @@
 // src/pages/BuyRent.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import { Navigation } from 'swiper/modules';
 import axios from "axios";
 import {MapPin, Home, Bed, Bath, Ruler, LandPlot, Calendar, Layers, DollarSign, Building2, ExternalLink, ArrowLeft, CircleHelp, History} from "lucide-react";
 import 'katex/dist/katex.min.css';
@@ -20,6 +18,7 @@ export default function BuyRent() {
   const [showCapFormula, setShowCapFormula] = useState(false);
   const [showCoCFormula, setShowCoCFormula] = useState(false);
   const [showCashFlowFormula, setShowCashFlowFormula] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
@@ -66,20 +65,32 @@ export default function BuyRent() {
     }
   };
 
-  // Temporary static image list
-  const mockImages = [
-    "/house1.jpg",
-    "/house2.jpg",
-    "/house3.jpg"
-  ];
-
   return (
     <div className="flex min-h-screen">
+      {/* Mobile Sidebar Toggle */}
+      <div className="md:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg">
+          ☰
+        </button>
+      </div>
+
       {/* Sidebar */}
-      <aside className="w-80 bg-gray-100 border-r p-6 space-y-4 sticky top-0 h-screen overflow-y-auto">
+      <aside className={`fixed md:sticky top-0 left-0 md:h-screen min-h-screen bg-gray-100 border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out
+                        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
+        {/* Close button for mobile */}
+        <div className="md:hidden flex justify-end mb-4">
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="text-slate-700 hover:text-slate-900">
+            ✕
+          </button>
+        </div>
+
         {/* Back Button */}
         <button
-          className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1 rounded-full font-medium text-sm"
+          className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1 rounded-full font-medium text-lg md:text-base"
           onClick={() => navigate(-1)}>
           <ArrowLeft size={16} /> Back to Search
         </button>
@@ -132,30 +143,30 @@ export default function BuyRent() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-10">
+      <main className="flex-1 pt-20 md:pt-6">
 
         {/* Top Sections */}
         <div className="flex flex-col lg:flex-row gap-8 mb-10 px-6 items-stretch">
-          {/* Carousel Section */}
-          <div className="flex-1 max-w-4xl mx-auto h-full">
-            <Swiper
-              modules={[Navigation]}
-              navigation
-              spaceBetween={10}
-              slidesPerView={1}
-              className="rounded-xl shadow h-full">
-              {mockImages.map((img, idx) => (
-                <SwiperSlide key={idx}>
-                  <img
-                    src={img}
-                    alt={`Property ${idx + 1}`}
-                    className="w-full h-full object-cover rounded-xl"
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
+          {/* Image */}
+          {property ? (
+          <div className="w-full lg:w-2/3 h-64 lg:h-full">
+            <a
+              href={property.property_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mb-4">
+              <img
+                src={property.image_url || "/fallback.png"}
+                alt={`${property.address} Preview`}
+                className="w-full h-full object-cover rounded"
+                onError={(e) => {
+                  e.target.src = "/fallback.png"; // Fallback if image fails to load
+                }}/>
+            </a>
           </div>
-
+          ) : (
+            <p className="text-gray-500">Loading property details...</p>
+          )}
           {/* Deal Inputs Section */}
           <div className="bg-white p-6 rounded-xl shadow border w-full lg:w-1/3 flex flex-col justify-between h-full">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Deal Inputs</h2>
@@ -196,7 +207,7 @@ export default function BuyRent() {
         </div>
 
         {/* Deal Analysis */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid gap-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
           {/* NOI */}
           <div className="p-6 bg-white rounded-xl shadow border">

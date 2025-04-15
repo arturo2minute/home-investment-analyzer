@@ -183,8 +183,7 @@ export default function SearchPage() {
           {properties.map((property) => (
             <div
               key={property.id}
-              className="bg-white rounded-2xl shadow-lg p-8 border hover:shadow-xl transition transform scale-105"
-            >
+              className="bg-white rounded-2xl shadow-lg p-8 border hover:shadow-xl transition transform scale-105">
               <a
                 href={property.property_url}
                 target="_blank"
