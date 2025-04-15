@@ -207,7 +207,7 @@ export default function BuyRent() {
         </div>
 
         {/* Deal Analysis */}
-        <div className="grid gap-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid p-5 gap-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
 
           {/* NOI */}
           <div className="p-6 bg-white rounded-xl shadow border">
@@ -215,8 +215,7 @@ export default function BuyRent() {
               <h3 className="text-lg font-bold">Net Operating Income</h3>
               <button
                 onClick={() => setShowNOIFormula(!showNOIFormula)}
-                className="p-1 text-gray-600 hover:text-gray-800"
-              >
+                className="p-1 text-gray-600 hover:text-gray-800">
                 <CircleHelp size={16} />
               </button>
             </div>
@@ -226,7 +225,7 @@ export default function BuyRent() {
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
                   <BlockMath math={`\\$${analysis.noi} = \\$${analysis.annual_gross_income} - \\$${analysis.annual_operating_expenses}`} />
                 ) : (
@@ -242,8 +241,7 @@ export default function BuyRent() {
               <h3 className="text-lg font-bold">Cap Rate</h3>
               <button
                 onClick={() => setShowCapFormula(!showCapFormula)}
-                className="p-1 text-gray-600 hover:text-gray-800"
-              >
+                className="p-1 text-gray-600 hover:text-gray-800">
                 <CircleHelp size={16} />
               </button>
             </div>
@@ -253,7 +251,7 @@ export default function BuyRent() {
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
                   <BlockMath math={`${analysis.cap_rate}\\% = \\frac{\\$${analysis.noi}}{\\$${analysis.purchase_price}} \\times 100`} />
                 ) : (
@@ -269,8 +267,7 @@ export default function BuyRent() {
               <h3 className="text-lg font-bold">Cash-on-Cash Return</h3>
               <button
                 onClick={() => setShowCoCFormula(!showCoCFormula)}
-                className="p-1 text-gray-800 hover:text-gray-800"
-              >
+                className="p-1 text-gray-800 hover:text-gray-800">
                 <CircleHelp size={16} />
               </button>
             </div>
@@ -280,7 +277,7 @@ export default function BuyRent() {
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
                   <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.down_payment}} \\times 100`} />
                 ) : (
@@ -296,8 +293,7 @@ export default function BuyRent() {
               <h3 className="text-lg font-bold">Monthly Cash Flow</h3>
               <button
                 onClick={() => setShowCashFlowFormula(!showCashFlowFormula)}
-                className="p-1 text-gray-600 hover:text-gray-800"
-              >
+                className="p-1 text-gray-600 hover:text-gray-800">
                 <CircleHelp size={16} />
               </button>
             </div>
@@ -307,7 +303,7 @@ export default function BuyRent() {
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-md md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
                   <BlockMath math={`\\$${analysis.monthly_cash_flow} = \\frac{\\$${analysis.noi}}{\\text{12}} - \\$${analysis.monthly_mortgage}`} />
                 ) : (
@@ -316,8 +312,8 @@ export default function BuyRent() {
               </div>
             </div>
           </div>
-
         </div>
+
       </main>
     </div>
   );
