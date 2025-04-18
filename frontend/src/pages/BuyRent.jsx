@@ -19,7 +19,6 @@ export default function BuyRent() {
   const [showCoCFormula, setShowCoCFormula] = useState(false);
   const [showCashFlowFormula, setShowCashFlowFormula] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
     down_payment: 20000,
@@ -44,6 +43,18 @@ export default function BuyRent() {
     };
     fetchProperty();
   }, [id]);
+
+  // Update inputs based on property data
+  useEffect(() => {
+    if (property && property.listing_price) {
+      const downPayment = property.listing_price * 0.2;
+      setInputs(prev => ({
+        ...prev,
+        purchase_price: property.listing_price,
+        down_payment: downPayment
+      }));
+    }
+  }, [property]);
 
   // Handler for Input Changes
   const handleInputChange = (e) => {
