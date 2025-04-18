@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, CircleHelp } from "lucide-react";
 
 const strategies = [
-  {id: "buy_and_Live_and_rent",
+  {id: "buy_and_live_and_rent",
     label: "🏠 Buy & Live & Rent",
     description: "Purchase a property, live in the property for owner-occupied financing requirements, rent it out long-term for passive income and appreciation."
   },
@@ -38,7 +38,7 @@ export default function SearchPage() {
   const [zipcode, setZipcode] = useState("");
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [analysisType, setAnalysisType] = useState("buy_and_Live_and_rent");
+  const [analysisType, setAnalysisType] = useState("buy_and_live_and_rent");
   const [openDescriptions, setOpenDescriptions] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
