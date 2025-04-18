@@ -220,8 +220,8 @@ export default function BuyRent() {
               </button>
             </div>
             {showNOIFormula && (
-              <div className="mt-2 text-sm text-slate-700">
-                <BlockMath math="\text{NOI} = \text{Annual Gross Rental Income} - \text{Annual Operating Expenses}" />
+              <div className="mt-2 text-xs md:text-xl lg:text-2xl text-slate-700">
+                <span>NOI = Gross Rental Income - Operating Expenses</span>
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
@@ -229,7 +229,7 @@ export default function BuyRent() {
                 {analysis ? (
                   <BlockMath math={`\\$${analysis.noi} = \\$${analysis.annual_gross_income} - \\$${analysis.annual_operating_expenses}`} />
                 ) : (
-                  <BlockMath math="\text{NOI} = \text{Gross Rental Income} - \text{Operating Expenses}" />
+                  <span>NOI = Gross Rental Income - Operating Expenses</span>
                 )}
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function BuyRent() {
             </div>
             {showCapFormula && (
               <div className="mt-2 text-sm text-slate-700">
-                <BlockMath math="\text{Cap Rate} = \frac{\text{NOI}}{\text{Purchase Price}} \times 100\%" />
+                <span>Cap Rate = (NOI / Purchase Price) × 100%</span> 
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
@@ -255,8 +255,7 @@ export default function BuyRent() {
                 {analysis ? (
                   <BlockMath math={`${analysis.cap_rate}\\% = \\frac{\\$${analysis.noi}}{\\$${analysis.purchase_price}} \\times 100`} />
                 ) : (
-                  <BlockMath math="\text{Cap Rate} = \frac{\text{NOI}}{\text{Purchase Price}} \times 100\%" />
-                )}
+                  <span>Cap Rate = (NOI / Purchase Price) × 100%</span>                )}
               </div>
             </div>
           </div>
@@ -273,7 +272,7 @@ export default function BuyRent() {
             </div>
             {showCoCFormula && (
               <div className="mt-2 text-sm text-slate-700">
-                <BlockMath math="\text{CoC Return} = \frac{\text{Annual Cash Flow}}{\text{Total Cash Invested}} \times 100\%" />
+                <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
@@ -281,7 +280,7 @@ export default function BuyRent() {
                 {analysis ? (
                   <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.down_payment}} \\times 100`} />
                 ) : (
-                  <BlockMath math="\text{CoC Return} = \frac{\text{Annual Cash Flow}}{\text{Total Cash Invested}} \times 100\%" />
+                  <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>                
                 )}
               </div>
             </div>
@@ -299,7 +298,7 @@ export default function BuyRent() {
             </div>
             {showCashFlowFormula && (
               <div className="mt-2 text-sm text-slate-700">
-                <BlockMath math="\text{Cash Flow} = \frac{\text{NOI}}{\text{12 Months}} - \text{Mortgage Payment}" />
+                <span>Cash Flow = (NOI / 12) - Mortgage Payment</span>
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
@@ -307,7 +306,7 @@ export default function BuyRent() {
                 {analysis ? (
                   <BlockMath math={`\\$${analysis.monthly_cash_flow} = \\frac{\\$${analysis.noi}}{\\text{12}} - \\$${analysis.monthly_mortgage}`} />
                 ) : (
-                  <BlockMath math="\text{Cash Flow} = \frac{\text{NOI}}{\text{12 Months}} - \text{Mortgage Payment}" />
+                  <span>Cash Flow = (NOI / 12) - Mortgage Payment</span>                
                 )}
               </div>
             </div>
