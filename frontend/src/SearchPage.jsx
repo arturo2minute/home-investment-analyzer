@@ -141,9 +141,16 @@ export default function SearchPage() {
 
       <main className="flex-1 p-6 max-w-7xl mx-auto pt-20 md:pt-6">
         {/* Header */}
-        <h1 className="text-3xl font-bold mb-4 text-center text-slate-700">
-          Home Investment Analyzer
-        </h1>
+        <div className="flex items-center justify-center mb-4">
+          <img
+            src="/logo.png"
+            alt="Valora Logo"
+            className="h-10 w-10 mr-2" // Adjust size and margin as needed
+          />
+          <h1 className="text-3xl font-bold text-slate-700">
+            Valora
+          </h1>
+        </div>
 
         {/* Search */}
         <div className="flex items-center justify-center gap-4 mb-6">

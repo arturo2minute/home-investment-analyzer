@@ -47,7 +47,7 @@ export default function BuyLiveRent() {
   // Update inputs based on property data
   useEffect(() => {
     if (property && property.listing_price) {
-      const downPayment = property.listing_price * 0.05;
+      const downPayment = property.listing_price * 0.035;
       setInputs(prev => ({
         ...prev,
         purchase_price: property.listing_price,
