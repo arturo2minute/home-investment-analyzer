@@ -21,21 +21,33 @@ export default function BuyRent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
-    down_payment: 20000,
-    monthly_rent: 2600,
-    monthly_mortgage: 1650,
-    yearly_taxes: 2400,
+    closing_costs: 6500,
+    arv: 390000,
+    rehab: 25000,
+    cash: 0,
+    down_payment: 15000,
+    interest_rate: 6.53,
+    loan_term: 30,
+    monthly_rent: 2650,
+    yearly_taxes: 2450,
     yearly_insurance: 1100,
-    maintenance: 600,
-    vacancy: 600,
-    repairs: 8000
+    maintenance: 5,
+    vacancy: 5,
+    capex: 5,
+    managment: 5,
+    electricity: 50,
+    gas: 50,
+    watersewer: 50,
+    hoa_fees: 50,
+    garbage: 50,
+    other: 0
 });
 
   // Gather general property info from database
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/property/${id}/short_term_rental`);
+        const res = await axios.get(`http://localhost:8000/property/${id}/short_term`);
         setProperty(res.data);
       } catch (error) {
         console.error("Failed to fetch property:", error);
@@ -82,34 +94,34 @@ export default function BuyRent() {
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg">
+          className="bg-teal text-white px-4 py-2 rounded-md shadow-lg">
           ☰
         </button>
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed md:sticky top-0 left-0 md:h-screen min-h-screen bg-gray-100 border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out
+      <aside className={`fixed md:sticky top-0 left-0 md:h-screen min-h-screen bg-light-gray border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out
                         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
         {/* Close button for mobile */}
         <div className="md:hidden flex justify-end mb-4">
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="text-slate-700 hover:text-slate-900">
+            className="text-dark-gray">
             ✕
           </button>
         </div>
 
         {/* Back Button */}
         <button
-          className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1 rounded-full font-medium text-lg md:text-base"
+          className="inline-flex items-center gap-2 bg-teal text-white-smoke hover:bg-soft-teal hover:text-dark-gray px-3 py-1 rounded-full font-medium text-lg md:text-base"
           onClick={() => navigate(-1)}>
           <ArrowLeft size={16} /> Back to Search
         </button>
 
         {/* Property Details Card */}
-        <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2"> <Home size={24} />Property Details</h2>
+        <h2 className="text-2xl font-bold text-dark-gray mb-4 flex items-center gap-2"> <Home size={24} />Property Details</h2>
         {property ? (
-          <div className="bg-white rounded-xl shadow p-6 space-y-4 text-slate-700 text-base">
+          <div className="bg-white rounded-xl shadow p-6 space-y-4 text-dark-gray text-base">
             <div className="space-y-2">
               <p className="flex items-center gap-2"><MapPin size={16} /><strong>Address:</strong></p>
               <p className="flex items-center gap-2">{property.address}</p>
@@ -135,13 +147,13 @@ export default function BuyRent() {
             </div>
           </div>
         ) : (
-          <p className="text-gray-500">Loading property details...</p>
+          <p className="text-dark-gray">Loading property details...</p>
         )}
 
         {/* Property History Card */}
-        <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2"> <History size={24} />Property History</h2>
+        <h2 className="text-2xl font-bold text-dark-gray mb-4 flex items-center gap-2"> <History size={24} />Property History</h2>
         {property ? (
-          <div className="bg-white rounded-xl shadow p-6 space-y-4 text-slate-700 text-base">
+          <div className="bg-white rounded-xl shadow p-6 space-y-4 text-dark-gray text-base">
             <div className="space-y-2">
               <p className="flex items-center gap-2"><Calendar size={16} /><strong>Year Built:</strong> {property.year_built}</p>
               <p className="flex items-center gap-2"><Calendar size={16} /><strong>Last Sold Date:</strong> {property.last_sold_date}</p>
@@ -149,7 +161,7 @@ export default function BuyRent() {
             </div>
           </div>
         ) : (
-          <p className="text-gray-500">Loading property details...</p>
+          <p className="text-dark-gray">Loading property details...</p>
         )}
       </aside>
 
@@ -176,25 +188,37 @@ export default function BuyRent() {
             </a>
           </div>
           ) : (
-            <p className="text-gray-500">Loading property details...</p>
+            <p className="text-dark-gray">Loading property details...</p>
           )}
           {/* Deal Inputs Section */}
           <div className="bg-white p-6 rounded-xl shadow border w-full lg:w-1/3 flex flex-col justify-between h-full">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">Deal Inputs</h2>
+            <h2 className="text-xl font-bold text-dark-gray mb-4">Deal Inputs</h2>
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: "Purchase Price", name: "purchase_price" },
+                { label: "Closing Costs", name: "closing_costs" },
+                { label: "After Repair Value", name: "arv" },
+                { label: "Rehab", name: "rehab" },
+                { label: "Cash Purchase", name: "cash" },
                 { label: "Down Payment", name: "down_payment" },
+                { label: "Interest Rate", name: "interest_rate" },
+                { label: "Loan Term", name: "loan_term" },
                 { label: "Monthly Rent", name: "monthly_rent" },
-                { label: "Monthly Mortgage", name: "monthly_mortgage" },
                 { label: "Yearly Taxes", name: "yearly_taxes" },
                 { label: "Yearly Insurance", name: "yearly_insurance" },
                 { label: "Maintenance", name: "maintenance" },
-                { label: "Vacancy Reserves", name: "vacancy" },
-                { label: "Estimated Rehab", name: "repairs" }
+                { label: "Vacancy", name: "vacancy" },
+                { label: "CapEX", name: "capex" },
+                { label: "Managment Fees", name: "managment" },
+                { label: "Electricity", name: "electricity" },
+                { label: "Gas", name: "gas" },
+                { label: "Water & Sewer", name: "watersewer" },
+                { label: "HOA Fees", name: "hoa_fees" },
+                { label: "Garbage", name: "garbage" },
+                { label: "Other", name: "other" },
               ].map((field) => (
                 <div key={field.name}>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-dark-gray mb-1">
                     {field.label}
                   </label>
                   <input
@@ -210,7 +234,7 @@ export default function BuyRent() {
             <div className="mt-4">
               <button
                 onClick={handleAnalyzeDeal}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                className="w-full bg-teal text-white py-2 rounded hover:bg-soft-teal hover:text-dark-gray">
                 Analyze Deal
               </button>
             </div>
@@ -223,20 +247,20 @@ export default function BuyRent() {
           {/* NOI */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold">Net Operating Income</h3>
+              <h3 className="text-lg font-bold text-dark-gray">Net Operating Income</h3>
               <button
                 onClick={() => setShowNOIFormula(!showNOIFormula)}
-                className="p-1 text-gray-600 hover:text-gray-800">
+                className="p-1 text-dark-gray hover:text-dark-gray">
                 <CircleHelp size={16} />
               </button>
             </div>
             {showNOIFormula && (
-              <div className="mt-2 text-xs md:text-xl lg:text-2xl text-slate-700">
+              <div className="mt-2 text-xs md:text-xl lg:text-2xl text-dark-gray">
                 <span>NOI = Gross Rental Income - Operating Expenses</span>
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
                   <BlockMath math={`\\$${analysis.noi} = \\$${analysis.annual_gross_income} - \\$${analysis.annual_operating_expenses}`} />
                 ) : (
@@ -249,20 +273,20 @@ export default function BuyRent() {
           {/* Cap Rate */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold">Cap Rate</h3>
+              <h3 className="text-lg font-bold text-dark-gray">Cap Rate</h3>
               <button
                 onClick={() => setShowCapFormula(!showCapFormula)}
-                className="p-1 text-gray-600 hover:text-gray-800">
+                className="p-1 text-dark-gray hover:text-dark-gray">
                 <CircleHelp size={16} />
               </button>
             </div>
             {showCapFormula && (
-              <div className="mt-2 text-sm text-slate-700">
+              <div className="mt-2 text-sm text-dark-gray">
                 <span>Cap Rate = (NOI / Purchase Price) × 100%</span> 
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
                   <BlockMath math={`${analysis.cap_rate}\\% = \\frac{\\$${analysis.noi}}{\\$${analysis.purchase_price}} \\times 100`} />
                 ) : (
@@ -274,10 +298,10 @@ export default function BuyRent() {
           {/* Cash-on-Cash Return */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold">Cash-on-Cash Return</h3>
+              <h3 className="text-lg font-bold text-dark-gray">Cash-on-Cash Return</h3>
               <button
                 onClick={() => setShowCoCFormula(!showCoCFormula)}
-                className="p-1 text-gray-800 hover:text-gray-800">
+                className="p-1 text-dark-gray hover:text-dark-gray">
                 <CircleHelp size={16} />
               </button>
             </div>
@@ -287,9 +311,9 @@ export default function BuyRent() {
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
-                  <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.down_payment}} \\times 100`} />
+                  <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.total_cash_invested}} \\times 100`} />
                 ) : (
                   <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>                
                 )}
@@ -300,10 +324,10 @@ export default function BuyRent() {
           {/* Monthly Cash Flow */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold">Monthly Cash Flow</h3>
+              <h3 className="text-lg font-bold text-dark-gray">Monthly Cash Flow</h3>
               <button
                 onClick={() => setShowCashFlowFormula(!showCashFlowFormula)}
-                className="p-1 text-gray-600 hover:text-gray-800">
+                className="p-1 text-dark-gray hover:text-dark-gray">
                 <CircleHelp size={16} />
               </button>
             </div>
@@ -313,7 +337,7 @@ export default function BuyRent() {
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
-              <div className="text-md md:text-xl lg:text-2xl font-semibold text-gray-800 overflow-x-auto whitespace-normal max-w-full">
+              <div className="text-md md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
                   <BlockMath math={`\\$${analysis.monthly_cash_flow} = \\frac{\\$${analysis.noi}}{\\text{12}} - \\$${analysis.monthly_mortgage}`} />
                 ) : (

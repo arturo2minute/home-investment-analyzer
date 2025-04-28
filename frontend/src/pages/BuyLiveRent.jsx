@@ -47,7 +47,7 @@ export default function BuyRent() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/property/${id}/buy_live_rent`);
+        const res = await axios.get(`http://localhost:8000/property/${id}/buy_and_live_and_rent`);
         setProperty(res.data);
       } catch (error) {
         console.error("Failed to fetch property:", error);
