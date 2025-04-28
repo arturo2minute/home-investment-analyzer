@@ -1,4 +1,4 @@
-# Home Investment Analyzer (In progress...)
+# Valora (In progress...)
 
 The **Home Investment Analyzer** is a web application that helps users evaluate real time real estate investment opportunities across multiple investment strategies such as:
 - Buy & Live & Rent ( Live in property for initial two years)
