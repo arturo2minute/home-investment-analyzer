@@ -21,14 +21,26 @@ export default function BuyRent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
-    down_payment: 20000,
-    monthly_rent: 2600,
-    monthly_mortgage: 1650,
-    yearly_taxes: 2400,
+    closing_costs: 6500,
+    arv: 390000,
+    rehab: 25000,
+    cash: 0,
+    down_payment: 15000,
+    interest_rate: 6.53,
+    loan_term: 30,
+    monthly_rent: 2650,
+    yearly_taxes: 2450,
     yearly_insurance: 1100,
-    maintenance: 600,
-    vacancy: 600,
-    repairs: 8000
+    maintenance: 5,
+    vacancy: 5,
+    capex: 5,
+    managment: 5,
+    electricity: 50,
+    gas: 50,
+    watersewer: 50,
+    hoa_fees: 50,
+    garbage: 50,
+    other: 0
 });
 
   // Gather general property info from database
@@ -47,7 +59,7 @@ export default function BuyRent() {
   // Update inputs based on property data
   useEffect(() => {
     if (property && property.listing_price) {
-      const downPayment = property.listing_price * 0.035;
+      const downPayment = property.listing_price * 0.2;
       setInputs(prev => ({
         ...prev,
         purchase_price: property.listing_price,
@@ -184,14 +196,26 @@ export default function BuyRent() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: "Purchase Price", name: "purchase_price" },
+                { label: "Closing Costs", name: "closing_costs" },
+                { label: "After Repair Value", name: "arv" },
+                { label: "Rehab", name: "rehab" },
+                { label: "Cash Purchase", name: "cash" },
                 { label: "Down Payment", name: "down_payment" },
+                { label: "Interest Rate", name: "interest_rate" },
+                { label: "Loan Term", name: "loan_term" },
                 { label: "Monthly Rent", name: "monthly_rent" },
-                { label: "Monthly Mortgage", name: "monthly_mortgage" },
                 { label: "Yearly Taxes", name: "yearly_taxes" },
                 { label: "Yearly Insurance", name: "yearly_insurance" },
                 { label: "Maintenance", name: "maintenance" },
-                { label: "Vacancy Reserves", name: "vacancy" },
-                { label: "Estimated Rehab", name: "repairs" }
+                { label: "Vacancy", name: "vacancy" },
+                { label: "CapEX", name: "capex" },
+                { label: "Managment Fees", name: "managment" },
+                { label: "Electricity", name: "electricity" },
+                { label: "Gas", name: "gas" },
+                { label: "Water & Sewer", name: "watersewer" },
+                { label: "HOA Fees", name: "hoa_fees" },
+                { label: "Garbage", name: "garbage" },
+                { label: "Other", name: "other" },
               ].map((field) => (
                 <div key={field.name}>
                   <label className="block text-sm font-medium text-dark-gray mb-1">
@@ -289,7 +313,7 @@ export default function BuyRent() {
             <div className="flex items-center justify-center flex-col">
               <div className="text-lg md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
-                  <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.down_payment}} \\times 100`} />
+                  <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.total_cash_invested}} \\times 100`} />
                 ) : (
                   <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>                
                 )}
