@@ -1,6 +1,7 @@
 # scraper.py
 import math
 import requests
+import pandas as pd
 from homeharvest import scrape_property # type: ignore
 
 #--------------------------------- Helper Functions ---------------------------------
@@ -67,15 +68,25 @@ def get_property_image(property_url):
     Fetch the Open Graph image URL for a given property URL using Microlink.
     Returns a fallback image URL if no image is found.
     """
+    if not property_url:
+        return "/fallback.png"
+    print(f"[DEBUG] Fetching image for {property_url}")
+
     microlink_url = f"https://api.microlink.io/?url={property_url}"
     try:
         response = requests.get(microlink_url)
         response.raise_for_status()  # Raise an error for bad responses
         data = response.json()
+        if data is None:
+            print(f"[DEBUG] API returned None for {property_url}")
+            return "/fallback.png"
         # Extract the image URL from the response, default to fallback if missing
         return data.get("data", {}).get("image", {}).get("url", "/fallback.png")
     except requests.RequestException as e:
         print(f"Error fetching image for {property_url}: {e}")
+        return "/fallback.png"
+    except ValueError as e:
+        print(f"JSON decode error for {property_url}: {e}")
         return "/fallback.png"
 
 #--------------------------------- Main Functions ---------------------------------
@@ -88,17 +99,25 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
             past_days=pastdays
         )
 
+        # Handle missing data at DataFrame level
+        string_cols = [
+            "street", "unit", "city", "state", "list_date", "status", "style",
+            "property_url", "mls", "mls_id", "last_sold_date", "parking_garage"
+        ]
+        numeric_cols = [
+            "list_price", "beds", "full_baths", "half_baths", "sqft", "lot_sqft",
+            "year_built", "sold_price", "price_per_sqft", "latitude", "longitude",
+            "stories", "hoa_fee"
+        ]
+        # Fill missing values and ensure correct dtypes
+        listings[string_cols] = listings[string_cols].fillna("")
+        listings[numeric_cols] = listings[numeric_cols].fillna(0).infer_objects(copy=False)
+
         # Transform into list of dicts
         results = []
         for _, row in listings.iterrows():
 
-            # Handle composite address
-            street = row.get("street")
-            unit = row.get("unit")
-            city = row.get("city")
-            address_parts = [part for part in [street, unit, city] if part and str(part).strip()]
-            address = " ".join(address_parts) if address_parts else "--"
-            image_url = get_property_image(row.get("property_url"))
+            image_url = get_property_image(row["property_url"])
 
             results.append({
                 "address": remove_none(row.get("street", "Unknown")),
@@ -170,18 +189,18 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
 #     url = 'https://www.realtor.com/realestateandhomes-detail/2721082437'
 #     print(get_property_image(url))
     
-# if __name__ == "__main__":
-#     # 🔧 Set test inputs
-#     test_zip = "97478"
-#     test_listing_type = "for_sale"  # or "sold", "pending"
-#     test_days = 7
+if __name__ == "__main__":
+    # 🔧 Set test inputs
+    test_zip = "97478"
+    test_listing_type = "for_sale"  # or "sold", "pending"
+    test_days = 5
 
-#     # 🔍 Run the scraper and inspect results
-#     print("Scraping...")
-#     properties = scrape_realtor_dot_com(test_zip, test_listing_type, test_days)
+    # 🔍 Run the scraper and inspect results
+    print("Scraping...")
+    properties = scrape_realtor_dot_com(test_zip, test_listing_type, test_days)
 
-#     # 🧪 Print first result (or all)
-#     for i, prop in enumerate(properties[:3]):  # Limit for readability
-#         print(f"\n--- Property #{i+1} ---")
-#         for k, v in prop.items():
-#             print(f"{k}: {v}")
+    # 🧪 Print first result (or all)
+    for i, prop in enumerate(properties[:3]):  # Limit for readability
+        print(f"\n--- Property #{i+1} ---")
+        for k, v in prop.items():
+            print(f"{k}: {v}")

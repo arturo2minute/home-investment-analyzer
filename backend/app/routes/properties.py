@@ -23,7 +23,7 @@ def get_db():
 def get_properties(zipcode: str, db: Session = Depends(get_db)):
     # print(f"[DEBUG] Received zipcode: {zipcode}")
 
-    # listings = scrape_realtor_dot_com(zipcode, 'for_sale', 7)
+    # listings = scrape_realtor_dot_com(zipcode, 'for_sale', 1)
 
     # print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
 
