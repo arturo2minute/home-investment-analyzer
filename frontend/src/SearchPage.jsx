@@ -145,6 +145,7 @@ export default function SearchPage() {
 
         {/* Horizontal Menu (Visible on md and up) */}
         <div className="hidden md:block mb-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-wrap justify-between gap-1 lg:gap-4">
             {strategies.map((s) => {
               const isSelected = analysisType === s.id;
@@ -159,6 +160,7 @@ export default function SearchPage() {
                 </button>
               );
             })}
+          </div>
           </div>
         </div>
 
@@ -186,7 +188,7 @@ export default function SearchPage() {
 
         {/* Use Message */}
         {!zipcode && properties.length === 0 && (
-          <div className="bg-light-gray border border-teal text-dark-gray p-6 rounded-xl mb-10 shadow-sm">
+          <div className="bg-light-gray border border-teal text-dark-gray p-6 rounded-xl mb-10 shadow-sm max-w-7xl mx-auto">
             <h2 className="text-2xl font-bold mb-2 text-dark-gray">Welcome to the Home Investment Analyzer! 🏡</h2>
             <p className="mb-2 text-dark-gray">
               This tool helps you evaluate potential real estate deals across multiple investment strategies — like Buy & Hold, BRRRR, Short-Term Rentals, and more.
@@ -201,7 +203,7 @@ export default function SearchPage() {
         )}
 
         {/* Property Cards */}
-        <div className="grid gap-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-14 grid-cols-1 max-w-7xl sm:grid-cols-2 lg:grid-cols-3 mx-auto">
           {properties.map((property) => (
             <div
               key={property.id}
