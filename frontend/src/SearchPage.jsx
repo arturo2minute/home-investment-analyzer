@@ -94,13 +94,9 @@ export default function SearchPage() {
         </button>
       </div>
 
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed md:sticky top-0 left-0 md:h-screen min-h-screen bg-light-gray border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0`}>
-        {/* Close button for mobile */}
+      {/* Sidebar (Visible on Mobile Only) */}
+      <aside className={`fixed top-0 left-0 min-h-screen bg-light-gray border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:hidden`}>
         <div className="md:hidden flex justify-end mb-4">
           <button
             onClick={() => setIsSidebarOpen(false)}
@@ -140,10 +136,31 @@ export default function SearchPage() {
       </aside>
 
       <main className="flex-1 p-6 max-w-7xl mx-auto pt-20 md:pt-6">
+
         {/* Header */}
         <div className="flex items-center justify-center mb-4">
           <img src="/logo.png" alt="Valora Logo" className="h-10 w-10 mr-2" />
           <h1 className="text-3xl font-bold text-dark-gray">Valora</h1>
+        </div>
+
+        {/* Horizontal Menu (Visible on md and up) */}
+        <div className="hidden md:block mb-4">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {strategies.map((s) => {
+              const isSelected = analysisType === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setAnalysisType(s.id)}
+                  className={`py-2 px-4 rounded-md font-medium ${
+                    isSelected ? "bg-teal text-white" : "text-dark-gray hover:bg-soft-teal"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Search */}
@@ -153,8 +170,7 @@ export default function SearchPage() {
             placeholder="Enter ZIP code"
             value={zipcode}
             onChange={(e) => setZipcode(e.target.value)}
-            className="border border-light-gray px-4 py-2 rounded w-48"
-          />
+            className="border border-light-gray px-4 py-2 rounded w-48"/>
           <button
             onClick={handleSearch}
             className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray">
