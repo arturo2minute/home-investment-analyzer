@@ -135,7 +135,7 @@ export default function SearchPage() {
         })}
       </aside>
 
-      <main className="flex-1 p-6 max-w-7xl mx-auto pt-20 md:pt-6">
+      <main className="flex-1 p-6 max-w-8xl mx-auto pt-20 md:pt-6">
 
         {/* Header */}
         <div className="flex items-center justify-center mb-4">
@@ -145,17 +145,16 @@ export default function SearchPage() {
 
         {/* Horizontal Menu (Visible on md and up) */}
         <div className="hidden md:block mb-4">
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap justify-between gap-1 lg:gap-4">
             {strategies.map((s) => {
               const isSelected = analysisType === s.id;
               return (
                 <button
                   key={s.id}
                   onClick={() => setAnalysisType(s.id)}
-                  className={`py-2 px-4 rounded-md font-medium ${
+                  className={`py-2 px-2 rounded-md font-medium ${
                     isSelected ? "bg-teal text-white" : "text-dark-gray hover:bg-soft-teal"
-                  }`}
-                >
+                  }`}>
                   {s.label}
                 </button>
               );
@@ -163,19 +162,26 @@ export default function SearchPage() {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Enter ZIP code"
-            value={zipcode}
-            onChange={(e) => setZipcode(e.target.value)}
-            className="border border-light-gray px-4 py-2 rounded w-48"/>
-          <button
-            onClick={handleSearch}
-            className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray">
-            Search
-          </button>
+        {/* Search with background */}
+        <div className="mx-[-1.5rem] mb-6">
+          <div
+            className="relative py-60"
+            style={{ backgroundImage: `url('/home.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="absolute inset-0 bg-black opacity-30"></div>
+            <div className="relative z-10 flex items-center justify-center gap-4">
+              <input
+                type="text"
+                placeholder="Enter ZIP code"
+                value={zipcode}
+                onChange={(e) => setZipcode(e.target.value)}
+                className="border border-light-gray px-4 py-2 rounded w-48"/>
+              <button
+                onClick={handleSearch}
+                className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray">
+                Search
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Use Message */}
