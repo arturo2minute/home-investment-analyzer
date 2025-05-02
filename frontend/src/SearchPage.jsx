@@ -122,8 +122,7 @@ export default function SearchPage() {
                 </button>
                 <button
                   onClick={() => toggleDescription(s.id)}
-                  className="p-1 text-dark-gray"
-                >
+                  className="p-1 text-dark-gray">
                   {isOpen ? <CircleHelp size={16} /> : <CircleHelp size={16} />}
                 </button>
               </div>
@@ -145,22 +144,35 @@ export default function SearchPage() {
 
         {/* Horizontal Menu (Visible on md and up) */}
         <div className="hidden md:block mb-4">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap justify-between gap-1 lg:gap-4">
-            {strategies.map((s) => {
-              const isSelected = analysisType === s.id;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => setAnalysisType(s.id)}
-                  className={`py-2 px-2 rounded-md font-medium ${
-                    isSelected ? "bg-teal text-white" : "text-dark-gray hover:bg-soft-teal"
-                  }`}>
-                  {s.label}
-                </button>
-              );
-            })}
-          </div>
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-3 lg:grid-cols-7 gap-4">
+              {strategies.map((s) => {
+                const isOpen = openDescriptions[s.id];
+                const isSelected = analysisType === s.id;
+
+                return (
+                  <div key={s.id} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <button
+                        onClick={() => setAnalysisType(s.id)}
+                        className={`w-full text-left py-2 px-3 rounded-md font-medium flex items-center gap-2 ${
+                          isSelected ? "bg-teal text-white" : "text-dark-gray hover:bg-soft-teal"
+                        }`}>
+                        {s.label}
+                      </button>
+                      <button
+                        onClick={() => toggleDescription(s.id)}
+                        className="p-1 text-dark-gray">
+                        {isOpen ? <CircleHelp size={16} /> : <CircleHelp size={16} />}
+                      </button>
+                    </div>
+                    {isOpen && (
+                      <p className="text-sm text-dark-gray px-3">{s.description}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
