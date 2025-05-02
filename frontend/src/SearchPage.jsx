@@ -145,7 +145,7 @@ export default function SearchPage() {
         {/* Horizontal Menu (Visible on md and up) */}
         <div className="hidden md:block mb-4">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="grid md:grid-cols-3 lg:grid-cols-7 gap-4">
+            <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(120px,auto))] justify-center">
               {strategies.map((s) => {
                 const isOpen = openDescriptions[s.id];
                 const isSelected = analysisType === s.id;
