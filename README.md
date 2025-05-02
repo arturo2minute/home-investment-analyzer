@@ -14,9 +14,10 @@ This project combines **React (frontend)**, **FastAPI (backend)**, and **AWS Pos
 ------------------------------------------------------------------------------------------------------------------
 
 ## Previews
-![image](https://github.com/user-attachments/assets/0aae4a41-2bf3-4b88-bff8-7b6271e0c10e)
-![image](https://github.com/user-attachments/assets/2d1a7e70-aa01-4165-a73e-255c3776d548)
-![image](https://github.com/user-attachments/assets/6c92a026-3f5b-4bc1-9f92-0f27922a078f)
+![image](https://github.com/user-attachments/assets/0ed074c0-b30f-45fd-aaee-ad9ed82d420b)
+![image](https://github.com/user-attachments/assets/978274a8-fda6-48f6-aced-a2fbb79c88d7)
+![image](https://github.com/user-attachments/assets/180f9c03-b57e-4bfd-b58a-9c6b29ce1271)
+![image](https://github.com/user-attachments/assets/e0151365-2801-4d69-9c9d-70eb4cb76195)
 
 ------------------------------------------------------------------------------------------------------------------
 
