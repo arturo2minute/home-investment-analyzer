@@ -169,7 +169,7 @@ export default function BuyRent() {
       <main className="flex-1 pt-20 md:pt-6">
 
         {/* Top Image */}
-        <div className="image-wrapper w-5/6 mx-auto">
+        <div className="image-wrapper p-5 mx-auto">
           {property ? (
             <a
               href={property.property_url}
