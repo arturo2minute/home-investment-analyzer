@@ -168,32 +168,33 @@ export default function BuyRent() {
       {/* Main Content */}
       <main className="flex-1 pt-20 md:pt-6">
 
-        {/* Top Sections */}
-        <div className="flex flex-col lg:flex-row gap-8 mb-10 px-6 items-stretch">
-          {/* Image */}
+        {/* Top Image */}
+        <div className="image-wrapper w-5/6 mx-auto">
           {property ? (
-          <div className="w-full lg:w-2/3 h-64 lg:h-full">
             <a
               href={property.property_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block mb-4">
+              className="block">
               <img
                 src={property.image_url || "/fallback.png"}
                 alt={`${property.address} Preview`}
                 className="w-full h-full object-cover rounded"
                 onError={(e) => {
-                  e.target.src = "/fallback.png"; // Fallback if image fails to load
-                }}/>
+                  e.target.src = "/fallback.png";
+                }}
+              />
             </a>
-          </div>
           ) : (
             <p className="text-dark-gray">Loading property details...</p>
           )}
-          {/* Deal Inputs Section */}
-          <div className="bg-white p-6 rounded-xl shadow border w-full lg:w-1/3 flex flex-col justify-between h-full">
+        </div>
+
+        {/* Deal Inputs */}
+        <div className="deal-inputs-wrapper p-5 mx-auto mt-8">
+          <div className="bg-white p-6 rounded-xl shadow border">
             <h2 className="text-xl font-bold text-dark-gray mb-4">Deal Inputs</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {[
                 { label: "Purchase Price", name: "purchase_price" },
                 { label: "Closing Costs", name: "closing_costs" },
@@ -227,17 +228,18 @@ export default function BuyRent() {
                     value={inputs[field.name]}
                     onChange={handleInputChange}
                     className="w-full border rounded px-3 py-2 text-sm"
-                    placeholder="$0"/>
+                    placeholder="$0"
+                  />
                 </div>
               ))}
             </div>
-            <div className="mt-4">
-              <button
-                onClick={handleAnalyzeDeal}
-                className="w-full bg-teal text-white py-2 rounded hover:bg-soft-teal hover:text-dark-gray">
-                Analyze Deal
-              </button>
-            </div>
+          </div>
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={handleAnalyzeDeal}
+              className="w-3/4 sm:w-1/4 bg-teal text-white py-2 rounded hover:bg-soft-teal hover:text-dark-gray">
+              Analyze Deal
+            </button>
           </div>
         </div>
 
