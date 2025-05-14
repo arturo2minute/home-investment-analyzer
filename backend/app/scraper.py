@@ -189,18 +189,18 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
 #     url = 'https://www.realtor.com/realestateandhomes-detail/2721082437'
 #     print(get_property_image(url))
     
-if __name__ == "__main__":
-    # 🔧 Set test inputs
-    test_zip = "97478"
-    test_listing_type = "for_sale"  # or "sold", "pending"
-    test_days = 5
+# if __name__ == "__main__":
+#     # 🔧 Set test inputs
+#     test_zip = "97478"
+#     test_listing_type = "for_sale"  # or "sold", "pending"
+#     test_days = 5
 
-    # 🔍 Run the scraper and inspect results
-    print("Scraping...")
-    properties = scrape_realtor_dot_com(test_zip, test_listing_type, test_days)
+#     # 🔍 Run the scraper and inspect results
+#     print("Scraping...")
+#     properties = scrape_realtor_dot_com(test_zip, test_listing_type, test_days)
 
-    # 🧪 Print first result (or all)
-    for i, prop in enumerate(properties[:3]):  # Limit for readability
-        print(f"\n--- Property #{i+1} ---")
-        for k, v in prop.items():
-            print(f"{k}: {v}")
+#     # 🧪 Print first result (or all)
+#     for i, prop in enumerate(properties[:3]):  # Limit for readability
+#         print(f"\n--- Property #{i+1} ---")
+#         for k, v in prop.items():
+#             print(f"{k}: {v}")

@@ -60,64 +60,92 @@ def get_property_by_id(property_id: int, db: Session = Depends(get_db)):
 class DealInputs(BaseModel):
     purchase_price: float
     closing_costs: float
-    arv: float
     rehab: float
-    cash: float
+    arv: float
+
+    cash: bool
     down_payment: float
     interest_rate: float
-    loan_term: float
+    lender_charges: float
+    loan_fees_wrapped: bool
+    pmi: float
+    years_amortized: float
+    rehab_months: float
+
     monthly_rent: float
+    other_monthly_income: float
+
     yearly_taxes: float
-    yearly_insurance: float
-    maintenance: float
-    vacancy: float
-    capex: float
-    managment: float
-    electricity: float
-    gas: float
-    watersewer: float
+    monthly_insurance: float
     hoa_fees: float
+    gas: float
+    electricity: float
+    watersewer: float
     garbage: float
     other: float
+
+    vacancy: float
+    maintenance: float
+    capex: float
+    managment: float
 
 # Endpoint to analyze the deal
 @router.post("/analyze-buy-rent-deal")
 def analyze_buy_rent_deal(inputs: DealInputs):
-    # Calculate annual gross income
+    #print("Received Inputs:", inputs.dict())
+                    ## Calculate NOI ##
+    # Calculate annual
     annual_gross_income = inputs.monthly_rent * 12
+    annual_insurance = inputs.monthly_insurance * 12
 
     # Calculate operating expenses
     maintenance_cost = (inputs.maintenance / 100) * annual_gross_income
     vacancy_cost = (inputs.vacancy / 100) * annual_gross_income
     capex_cost = (inputs.capex / 100) * annual_gross_income
     management_fees = (inputs.managment / 100) * annual_gross_income
-    annual_utilities = (inputs.electricity + inputs.gas + inputs.watersewer + 
-                        inputs.hoa_fees + inputs.garbage + inputs.other) * 12
+    annual_utilities = (inputs.hoa_fees + inputs.gas + inputs.electricity + inputs.watersewer 
+                        + inputs.garbage + inputs.other) * 12
 
-    annual_operating_expenses = (
-        inputs.yearly_taxes +
-        inputs.yearly_insurance +
-        maintenance_cost +
-        vacancy_cost +
-        capex_cost +
-        management_fees +
-        annual_utilities
-    )
+    annual_operating_expenses = (inputs.yearly_taxes + annual_insurance + maintenance_cost 
+                                 + vacancy_cost + capex_cost + management_fees + annual_utilities)
 
     # Calculate Net Operating Income (NOI)
     noi = annual_gross_income - annual_operating_expenses
 
-    # Calculate loan amount (0 if cash purchase)
-    loan_amount = max(0, inputs.purchase_price - inputs.down_payment)
 
-    # Calculate monthly mortgage payment
-    if loan_amount > 0 and inputs.interest_rate > 0 and inputs.loan_term > 0:
-        monthly_interest_rate = inputs.interest_rate / 100 / 12
-        number_of_payments = inputs.loan_term * 12
-        monthly_mortgage = loan_amount * (monthly_interest_rate * (1 + monthly_interest_rate)**number_of_payments) / \
-                           ((1 + monthly_interest_rate)**number_of_payments - 1)
-    else:
+                    ## Calculate Cap Rate ##
+    cap_rate = (noi / inputs.purchase_price) * 100 if inputs.purchase_price > 0 else 0
+
+
+                    ## Calculate Monthly Cash Flow ##
+    if inputs.cash == True:
         monthly_mortgage = 0
+        
+    else:
+        # Calculate loan amount
+        down_payment = inputs.purchase_price * (inputs.down_payment / 100)
+
+        if inputs.loan_fees_wrapped == True:
+            loan_amount = inputs.purchase_price + inputs.lender_charges - down_payment
+            closing_costs = inputs.closing_costs
+        else:
+            loan_amount = inputs.purchase_price - down_payment
+            closing_costs = inputs.closing_costs + inputs.lender_charges
+
+        # Calculate monthly mortgage payment
+        print(f"loan_amount: {loan_amount} inputs.interest_rate: {inputs.interest_rate} inputs.years_amortized: {inputs.years_amortized}")
+        if loan_amount > 0 and inputs.interest_rate > 0 and inputs.years_amortized > 0:
+            monthly_interest_rate = inputs.interest_rate / 100 / 12
+            number_of_payments = inputs.years_amortized * 12
+            monthly_mortgage = loan_amount * (monthly_interest_rate * (1 + monthly_interest_rate)**number_of_payments) / \
+                            ((1 + monthly_interest_rate)**number_of_payments - 1)
+        else:
+            monthly_mortgage = 0
+    
+        # Add monthly mortgage
+        #print(f"MORTGAGE: {monthly_mortgage}")
+        monthly_mortgage = (monthly_mortgage + inputs.pmi)
+        #print(f"MORTGAGE: {monthly_mortgage}")
 
     annual_mortgage = monthly_mortgage * 12
 
@@ -125,11 +153,13 @@ def analyze_buy_rent_deal(inputs: DealInputs):
     annual_cash_flow = noi - annual_mortgage
     monthly_cash_flow = (noi / 12) - monthly_mortgage
 
-    # Calculate cap rate
-    cap_rate = (noi / inputs.purchase_price) * 100 if inputs.purchase_price > 0 else 0
 
+                    ## Calculate Cash-on-Cash return ##
     # Calculate total cash invested for cash-on-cash return
-    total_cash_invested = inputs.down_payment + inputs.closing_costs + inputs.rehab
+    if inputs.cash == True:
+        total_cash_invested = inputs.purchase_price + inputs.closing_costs + inputs.rehab
+    else:
+        total_cash_invested = down_payment + closing_costs + inputs.rehab
 
     # Calculate cash-on-cash return
     coc_return = (annual_cash_flow / total_cash_invested) * 100 if total_cash_invested > 0 else 0
