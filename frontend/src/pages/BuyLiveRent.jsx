@@ -78,7 +78,7 @@ export default function BuyRent() {
   // }, [property]);
 
   // Handler for Input Changes
-  const handleInputChange = (e) => {
+ const handleInputChange = (e) => {
     const { name, type, value, checked } = e.target;
     setInputs((prev) => ({
       ...prev,
@@ -230,41 +230,50 @@ export default function BuyRent() {
               {/* Purchase Loan Details */}
               <h3 className="text-lg font-semibold text-dark-gray mb-2">Purchase Loan Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                {["cash", "down_payment", "interest_rate", "lender_charges", "loan_fees_wrapped", "pmi", "years_amortized", "rehab_months"].map((name) => {
-                  if (name === "cash" || name === "loan_fees_wrapped") {
-                    return (
+                <div>
+                  <label className="block text-sm font-medium text-dark-gray mb-1">
+                    Cash Purchase
+                  </label>
+                  <input
+                    type="checkbox"
+                    name="cash"
+                    checked={inputs.cash}
+                    onChange={handleInputChange}
+                    className="w-4 h-4"/>
+                </div>
+                {!inputs.cash && (
+                  <>
+                    {["down_payment", "interest_rate", "lender_charges", "loan_fees_wrapped", "pmi", "years_amortized"].map((name) => (
                       <div key={name}>
                         <label className="block text-sm font-medium text-dark-gray mb-1">
-                          {name === "cash" ? "Cash Purchase" : "Loan Fees Wrapped"}
+                          {name === "down_payment" ? "Down Payment (%)" : 
+                           name === "loan_fees_wrapped" ? "Loan Fees Wrapped" : 
+                           name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
                         </label>
                         <input
-                          type="checkbox"
+                          type={name === "loan_fees_wrapped" ? "checkbox" : "number"}
                           name={name}
-                          checked={inputs[name]}
+                          value={name === "loan_fees_wrapped" ? undefined : inputs[name]}
+                          checked={name === "loan_fees_wrapped" ? inputs[name] : undefined}
                           onChange={handleInputChange}
-                          className="w-4 h-4"
-                        />
+                          className={name === "loan_fees_wrapped" ? "w-4 h-4" : "w-full border rounded px-3 py-2 text-sm"}
+                          placeholder={name === "loan_fees_wrapped" ? undefined : "0"}/>
                       </div>
-                    );
-                  
-                  } else {
-                    return (
-                      <div key={name}>
-                        <label className="block text-sm font-medium text-dark-gray mb-1">
-                          {name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
-                        </label>
-                        <input
-                          type="number"
-                          name={name}
-                          value={inputs[name]}
-                          onChange={handleInputChange}
-                          className="w-full border rounded px-3 py-2 text-sm"
-                          placeholder="0"
-                        />
-                      </div>
-                    );
-                  }
-                })}
+                    ))}
+                  </>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-dark-gray mb-1">
+                    Rehab Months
+                  </label>
+                  <input
+                    type="number"
+                    name="rehab_months"
+                    value={inputs.rehab_months}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 text-sm"
+                    placeholder="0"/>
+                </div>
               </div>
             </div>
           </div>
@@ -359,7 +368,7 @@ export default function BuyRent() {
               </button>
             </div>
             {showNOIFormula && (
-              <div className="mt-2 text-xs md:text-xl lg:text-2xl text-dark-gray">
+              <div className="mt-2 text-sm text-dark-gray">
                 <span>NOI = Gross Rental Income - Operating Expenses</span>
               </div>
             )}

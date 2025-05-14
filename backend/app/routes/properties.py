@@ -133,7 +133,7 @@ def analyze_buy_rent_deal(inputs: DealInputs):
             closing_costs = inputs.closing_costs + inputs.lender_charges
 
         # Calculate monthly mortgage payment
-        print(f"loan_amount: {loan_amount} inputs.interest_rate: {inputs.interest_rate} inputs.years_amortized: {inputs.years_amortized}")
+        # print(f"loan_amount: {loan_amount} inputs.interest_rate: {inputs.interest_rate} inputs.years_amortized: {inputs.years_amortized}")
         if loan_amount > 0 and inputs.interest_rate > 0 and inputs.years_amortized > 0:
             monthly_interest_rate = inputs.interest_rate / 100 / 12
             number_of_payments = inputs.years_amortized * 12
