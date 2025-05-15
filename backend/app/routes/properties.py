@@ -60,6 +60,7 @@ def get_property_by_id(property_id: int, db: Session = Depends(get_db)):
 # Pydantic model for input validation
 class DealInputs(BaseModel):
     purchase_price: float
+    expected_profit: float
     closing_costs: float
     rehab: float
     arv: float
@@ -105,6 +106,44 @@ class DealInputs(BaseModel):
 # Endpoint to analyze the deals
 @router.post("/analyze-buy-rent-deal")
 def analyze_buy_rent_deal(inputs: DealInputs):
+    #print("Received Inputs:", inputs.dict())
+
+    ## Calculate NOI
+    noi, annual_gross_income, annual_operating_expenses = calculate_noi(inputs)
+    
+    ## Calculate Cap Rate
+    cap_rate = calculate_cap_rate(noi, inputs.purchase_price)
+
+    ## Calculate Monthly Mortgage
+    monthly_mortgage, down_payment_amount, closing_costs = calculate_monthly_mortgage(inputs)
+
+    ## Calculate Monthly Cash Flow
+    annual_cash_flow, monthly_cash_flow, annual_mortgage = calculate_cash_flow(noi, monthly_mortgage)
+    
+    ## Calculate Cash-on-Cash return
+    if inputs.cash == True:
+        total_cash_invested = inputs.purchase_price + inputs.closing_costs + inputs.rehab
+    else:
+        total_cash_invested = down_payment_amount + closing_costs + inputs.rehab
+
+    coc_return = calculate_CoC_return(annual_cash_flow, total_cash_invested)
+
+    return {
+        "noi": round(noi, 2),
+        "cap_rate": round(cap_rate, 2),
+        "coc_return": round(coc_return, 2),
+        "monthly_cash_flow": round(monthly_cash_flow, 2),
+        "annual_gross_income": round(annual_gross_income, 2),
+        "annual_operating_expenses": round(annual_operating_expenses, 2),
+        "purchase_price": round(inputs.purchase_price, 2),
+        "annual_cash_flow": round(annual_cash_flow, 2),
+        "total_cash_invested": round(total_cash_invested, 2),
+        "annual_mortgage": round(annual_mortgage, 2),
+        "monthly_mortgage": round(monthly_mortgage, 2)
+    }
+
+@router.post("/analyze-fix-flip")
+def analyze_fix_flip(inputs: DealInputs):
     #print("Received Inputs:", inputs.dict())
 
     ## Calculate NOI

@@ -23,6 +23,7 @@ export default function BuyRent() {
   const [error, setError] = useState(null);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
+    expected_profit: 0,
     closing_costs: 6500,
     rehab: 25000,
     arv: 390000,

@@ -23,6 +23,7 @@ export default function BuyRent() {
   const [error, setError] = useState(null);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
+    expected_profit: 0,
     closing_costs: 6500,
     rehab: 25000,
     arv: 390000,
@@ -295,10 +296,10 @@ export default function BuyRent() {
               </div>
 
               {/* Purchase Loan Details */}
-              <h3 className="text-lg font-semibold text-dark-gray mb-2">Refinance Loan Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {!inputs.cash && (
                   <>
+                    <h3 className="text-lg font-semibold text-dark-gray mb-2">Refinance Loan Details</h3>
                     {["refinance_loan_amount", "refinance_interest_rate", "refinance_lender_charges", "refinance_loan_fees_wrapped", "refinance_pmi", "refinance_years_amortized"].map((name) => (
                       <div key={name}>
                         <label className="block text-sm font-medium text-dark-gray mb-1">
