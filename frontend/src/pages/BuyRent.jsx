@@ -36,11 +36,21 @@ export default function BuyRent() {
     years_amortized: 30,
     rehab_months: 3,
 
+    refinance_loan_amount: 0,
+    refinance_interest_rate: 0,
+    refinance_lender_charges: 0,
+    refinance_loan_fees_wrapped: false,
+    refinance_pmi: 0,
+    refinance_years_amortized: 0,
+
     monthly_rent: 2650,
+    personal_rent_contribution: 0,
     other_monthly_income: 450,
 
     yearly_taxes: 2450,
     monthly_insurance: 1100,
+    cleaning: 0,
+    internet: 0,
     hoa_fees: 50,
     gas: 50,
     electricity: 50,

@@ -73,11 +73,21 @@ class DealInputs(BaseModel):
     years_amortized: float
     rehab_months: float
 
+    refinance_loan_amount: float
+    refinance_interest_rate: float
+    refinance_lender_charges: float
+    refinance_loan_fees_wrapped: bool
+    refinance_pmi: float
+    refinance_years_amortized: float
+
     monthly_rent: float
+    personal_rent_contribution: float
     other_monthly_income: float
 
     yearly_taxes: float
     monthly_insurance: float
+    cleaning: float
+    internet: float
     hoa_fees: float
     gas: float
     electricity: float

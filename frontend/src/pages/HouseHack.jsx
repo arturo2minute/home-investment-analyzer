@@ -19,29 +19,50 @@ export default function BuyRent() {
   const [showCoCFormula, setShowCoCFormula] = useState(false);
   const [showCashFlowFormula, setShowCashFlowFormula] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
     closing_costs: 6500,
-    arv: 390000,
     rehab: 25000,
-    cash: 0,
-    down_payment: 15000,
-    interest_rate: 6.53,
-    loan_term: 30,
+    arv: 390000,
+
+    cash: false,
+    down_payment: 8.33,
+    interest_rate: 3.27,
+    lender_charges: 0,
+    loan_fees_wrapped: true,
+    pmi: 81,
+    years_amortized: 30,
+    rehab_months: 3,
+
+    refinance_loan_amount: 0,
+    refinance_interest_rate: 0,
+    refinance_lender_charges: 0,
+    refinance_loan_fees_wrapped: false,
+    refinance_pmi: 0,
+    refinance_years_amortized: 0,
+
     monthly_rent: 2650,
+    personal_rent_contribution: 0,
+    other_monthly_income: 450,
+
     yearly_taxes: 2450,
-    yearly_insurance: 1100,
-    maintenance: 5,
-    vacancy: 5,
-    capex: 5,
-    managment: 5,
-    electricity: 50,
-    gas: 50,
-    watersewer: 50,
+    monthly_insurance: 1100,
+    cleaning: 0,
+    internet: 0,
     hoa_fees: 50,
+    gas: 50,
+    electricity: 50,
+    watersewer: 50,
     garbage: 50,
-    other: 0
-});
+    other: 0,
+
+    vacancy: 5,
+    maintenance: 5,
+    capex: 5,
+    managment: 5
+  });
 
   // Gather general property info from database
   useEffect(() => {
@@ -57,34 +78,38 @@ export default function BuyRent() {
   }, [id]);
 
   // Update inputs based on property data
-  useEffect(() => {
-    if (property && property.listing_price) {
-      const downPayment = property.listing_price * 0.2;
-      setInputs(prev => ({
-        ...prev,
-        purchase_price: property.listing_price,
-        down_payment: downPayment
-      }));
-    }
-  }, [property]);
+  // useEffect(() => {
+  //   if (property && property.listing_price) {
+  //     const downPayment = property.listing_price * 0.2;
+  //     setInputs(prev => ({
+  //       ...prev,
+  //       purchase_price: property.listing_price,
+  //       down_payment: downPayment
+  //     }));
+  //   }
+  // }, [property]);
 
   // Handler for Input Changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, type, value, checked } = e.target;
     setInputs((prev) => ({
       ...prev,
-      [name]: value
+      [name]: type === "checkbox" ? checked : Number(value) || 0,
     }));
   };
 
   // Handle deal analysis
   const handleAnalyzeDeal = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await axios.post('http://localhost:8000/analyze-buy-rent-deal', inputs);
-      setAnalysis(response.data); // Store results for display
+      const response = await axios.post("http://localhost:8000/analyze-buy-rent-deal", inputs);
+      setAnalysis(response.data);
     } catch (error) {
-      console.error('Error analyzing deal:', error);
-      alert('Failed to analyze deal. Please check your inputs.');
+      console.error("Error analyzing deal:", error);
+      setError(error.response?.data?.message || "Failed to analyze deal. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -168,76 +193,181 @@ export default function BuyRent() {
       {/* Main Content */}
       <main className="flex-1 pt-20 md:pt-6">
 
-        {/* Top Sections */}
-        <div className="flex flex-col lg:flex-row gap-8 mb-10 px-6 items-stretch">
-          {/* Image */}
+        {/* Top Image */}
+        <div className="image-wrapper p-5 mx-auto">
           {property ? (
-          <div className="w-full lg:w-2/3 h-64 lg:h-full">
             <a
               href={property.property_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block mb-4">
+              className="block">
               <img
                 src={property.image_url || "/fallback.png"}
                 alt={`${property.address} Preview`}
                 className="w-full h-full object-cover rounded"
                 onError={(e) => {
-                  e.target.src = "/fallback.png"; // Fallback if image fails to load
-                }}/>
+                  e.target.src = "/fallback.png";
+                }}
+              />
             </a>
-          </div>
           ) : (
             <p className="text-dark-gray">Loading property details...</p>
           )}
-          {/* Deal Inputs Section */}
-          <div className="bg-white p-6 rounded-xl shadow border w-full lg:w-1/3 flex flex-col justify-between h-full">
-            <h2 className="text-xl font-bold text-dark-gray mb-4">Deal Inputs</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: "Purchase Price", name: "purchase_price" },
-                { label: "Closing Costs", name: "closing_costs" },
-                { label: "After Repair Value", name: "arv" },
-                { label: "Rehab", name: "rehab" },
-                { label: "Cash Purchase", name: "cash" },
-                { label: "Down Payment", name: "down_payment" },
-                { label: "Interest Rate", name: "interest_rate" },
-                { label: "Loan Term", name: "loan_term" },
-                { label: "Monthly Rent", name: "monthly_rent" },
-                { label: "Yearly Taxes", name: "yearly_taxes" },
-                { label: "Yearly Insurance", name: "yearly_insurance" },
-                { label: "Maintenance", name: "maintenance" },
-                { label: "Vacancy", name: "vacancy" },
-                { label: "CapEX", name: "capex" },
-                { label: "Managment Fees", name: "managment" },
-                { label: "Electricity", name: "electricity" },
-                { label: "Gas", name: "gas" },
-                { label: "Water & Sewer", name: "watersewer" },
-                { label: "HOA Fees", name: "hoa_fees" },
-                { label: "Garbage", name: "garbage" },
-                { label: "Other", name: "other" },
-              ].map((field) => (
-                <div key={field.name}>
+        </div>
+
+        {/* Deal Inputs */}
+        <div className="deal-inputs-wrapper p-5 mx-auto space-y-8">
+
+          {/* Purchase Information */}
+          <div className="bg-white p-6 rounded-xl shadow border space-y-8">
+            <div>
+              <h2 className="text-xl font-bold text-dark-gray mb-4">Purchase Information</h2>
+              
+              {/* Purchase Details */}
+              <h3 className="text-lg font-semibold text-dark-gray mb-2">Purchase Details</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {["purchase_price", "closing_costs", "rehab", "arv"].map((name) => (
+                  <div key={name}>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">
+                      {name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    </label>
+                    <input
+                      type="number"
+                      name={name}
+                      value={inputs[name]}
+                      onChange={handleInputChange}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="$0"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Purchase Loan Details */}
+              <h3 className="text-lg font-semibold text-dark-gray mb-2">Purchase Loan Details</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
                   <label className="block text-sm font-medium text-dark-gray mb-1">
-                    {field.label}
+                    Cash Purchase
+                  </label>
+                  <input
+                    type="checkbox"
+                    name="cash"
+                    checked={inputs.cash}
+                    onChange={handleInputChange}
+                    className="w-4 h-4"/>
+                </div>
+                {!inputs.cash && (
+                  <>
+                    {["down_payment", "interest_rate", "lender_charges", "loan_fees_wrapped", "pmi", "years_amortized"].map((name) => (
+                      <div key={name}>
+                        <label className="block text-sm font-medium text-dark-gray mb-1">
+                          {name === "down_payment" ? "Down Payment (%)" : 
+                           name === "loan_fees_wrapped" ? "Loan Fees Wrapped" : 
+                           name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                        </label>
+                        <input
+                          type={name === "loan_fees_wrapped" ? "checkbox" : "number"}
+                          name={name}
+                          value={name === "loan_fees_wrapped" ? undefined : inputs[name]}
+                          checked={name === "loan_fees_wrapped" ? inputs[name] : undefined}
+                          onChange={handleInputChange}
+                          className={name === "loan_fees_wrapped" ? "w-4 h-4" : "w-full border rounded px-3 py-2 text-sm"}
+                          placeholder={name === "loan_fees_wrapped" ? undefined : "0"}/>
+                      </div>
+                    ))}
+                  </>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-dark-gray mb-1">
+                    Rehab Months
                   </label>
                   <input
                     type="number"
-                    name={field.name}
-                    value={inputs[field.name]}
+                    name="rehab_months"
+                    value={inputs.rehab_months}
                     onChange={handleInputChange}
                     className="w-full border rounded px-3 py-2 text-sm"
-                    placeholder="$0"/>
+                    placeholder="0"/>
                 </div>
-              ))}
+              </div>
             </div>
-            <div className="mt-4">
-              <button
-                onClick={handleAnalyzeDeal}
-                className="w-full bg-teal text-white py-2 rounded hover:bg-soft-teal hover:text-dark-gray">
-                Analyze Deal
-              </button>
+          </div>
+          
+          {/* Rental Information */}
+          <div className="bg-white p-6 rounded-xl shadow border space-y-8">
+            <div>
+              <h2 className="text-xl font-bold text-dark-gray mb-4">Rental Information</h2>
+
+              {/* Income */}
+              <h3 className="text-lg font-semibold text-dark-gray mb-2">Income</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {["monthly_rent", "personal_rent_contribution", "other_monthly_income"].map((name) => (
+                  <div key={name}>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">
+                      {name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    </label>
+                    <input
+                      type="number"
+                      name={name}
+                      value={inputs[name]}
+                      onChange={handleInputChange}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="0"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Fixed Landlord-Paid Expenses */}
+              <h3 className="text-lg font-semibold text-dark-gray mb-2">Fixed Landlord-Paid Expenses</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {["yearly_taxes", "monthly_insurance", "hoa_fees", "gas", "electricity", "watersewer", "garbage", "other"].map((name) => (
+                  <div key={name}>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">
+                      {name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    </label>
+                    <input
+                      type="number"
+                      name={name}
+                      value={inputs[name]}
+                      onChange={handleInputChange}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="$0"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Variable Landlord-Paid Expenses */}
+              <h3 className="text-lg font-semibold text-dark-gray mb-2">Variable Landlord-Paid Expenses (%)</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {["vacancy", "maintenance", "capex", "managment"].map((name) => (
+                  <div key={name}>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">
+                      {name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    </label>
+                    <input
+                      type="number"
+                      name={name}
+                      value={inputs[name]}
+                      onChange={handleInputChange}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="0%"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
+          </div>
+
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={handleAnalyzeDeal} disabled={isLoading}
+              className="w-3/4 sm:w-1/4 bg-teal text-white py-2 rounded hover:bg-soft-teal hover:text-dark-gray">
+              {isLoading ? "Analyzing..." : "Analyze Deal"}
+            </button>
+            {error && <p className="text-red-500">{error}</p>}
           </div>
         </div>
 
@@ -255,7 +385,7 @@ export default function BuyRent() {
               </button>
             </div>
             {showNOIFormula && (
-              <div className="mt-2 text-xs md:text-xl lg:text-2xl text-dark-gray">
+              <div className="mt-2 text-sm text-dark-gray">
                 <span>NOI = Gross Rental Income - Operating Expenses</span>
               </div>
             )}
@@ -315,7 +445,7 @@ export default function BuyRent() {
                 {analysis ? (
                   <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.total_cash_invested}} \\times 100`} />
                 ) : (
-                  <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>                
+                  <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>
                 )}
               </div>
             </div>
@@ -341,7 +471,7 @@ export default function BuyRent() {
                 {analysis ? (
                   <BlockMath math={`\\$${analysis.monthly_cash_flow} = \\frac{\\$${analysis.noi}}{\\text{12}} - \\$${analysis.monthly_mortgage}`} />
                 ) : (
-                  <span>Cash Flow = (NOI / 12) - Mortgage Payment</span>                
+                  <span>Cash Flow = (NOI / 12) - Mortgage Payment</span>
                 )}
               </div>
             </div>
