@@ -72,6 +72,7 @@ class DealInputs(BaseModel):
     pmi: float
     years_amortized: float
     rehab_months: float
+    interest_only: bool
 
     refinance_loan_amount: float
     refinance_interest_rate: float
@@ -83,6 +84,7 @@ class DealInputs(BaseModel):
     monthly_rent: float
     personal_rent_contribution: float
     other_monthly_income: float
+    selling_months: float
 
     yearly_taxes: float
     monthly_insurance: float

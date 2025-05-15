@@ -35,17 +35,19 @@ export default function BuyRent() {
     pmi: 81,
     years_amortized: 30,
     rehab_months: 3,
+    interest_only: false,
 
     refinance_loan_amount: 0,
     refinance_interest_rate: 0,
     refinance_lender_charges: 0,
-    refinance_loan_fees_wrapped: false,
+    refinance_loan_fees_wrapped: true,
     refinance_pmi: 0,
     refinance_years_amortized: 0,
 
     monthly_rent: 2650,
     personal_rent_contribution: 0,
     other_monthly_income: 450,
+    selling_months: 0,
 
     yearly_taxes: 2450,
     monthly_insurance: 1100,
