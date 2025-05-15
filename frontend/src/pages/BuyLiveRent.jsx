@@ -19,6 +19,8 @@ export default function BuyRent() {
   const [showCoCFormula, setShowCoCFormula] = useState(false);
   const [showCashFlowFormula, setShowCashFlowFormula] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
     closing_costs: 6500,
@@ -78,22 +80,26 @@ export default function BuyRent() {
   // }, [property]);
 
   // Handler for Input Changes
- const handleInputChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, type, value, checked } = e.target;
     setInputs((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : Number(value) || 0,
     }));
   };
 
   // Handle deal analysis
   const handleAnalyzeDeal = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await axios.post('http://localhost:8000/analyze-buy-rent-deal', inputs);
-      setAnalysis(response.data); // Store results for display
+      const response = await axios.post("http://localhost:8000/analyze-buy-rent-deal", inputs);
+      setAnalysis(response.data);
     } catch (error) {
-      console.error('Error analyzing deal:', error);
-      alert('Failed to analyze deal. Please check your inputs.');
+      console.error("Error analyzing deal:", error);
+      setError(error.response?.data?.message || "Failed to analyze deal. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -347,10 +353,11 @@ export default function BuyRent() {
 
           <div className="mt-4 flex justify-center">
             <button
-              onClick={handleAnalyzeDeal}
+              onClick={handleAnalyzeDeal} disabled={isLoading}
               className="w-3/4 sm:w-1/4 bg-teal text-white py-2 rounded hover:bg-soft-teal hover:text-dark-gray">
-              Analyze Deal
+              {isLoading ? "Analyzing..." : "Analyze Deal"}
             </button>
+            {error && <p className="text-red-500">{error}</p>}
           </div>
         </div>
 
