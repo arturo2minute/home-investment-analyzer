@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionLocal
+from typing import Optional
 from app.models import Property
 from app.scraper import scrape_realtor_dot_com
 from pydantic import BaseModel
@@ -41,16 +42,38 @@ def sync_new_listings(zipcode, db):
 
 
 @router.get("/properties")
-def get_properties(zipcode: str, db: Session = Depends(get_db)):
-    # print(f"[DEBUG] Received zipcode: {zipcode}")
+def get_properties(
+    zipcode: str,
+    minPrice: Optional[float] = None,
+    maxPrice: Optional[float] = None,
+    minsqft: Optional[int] = None,
+    bedrooms: Optional[int] = None,
+    homeType: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    print(f"[DEBUG] Received zipcode: {zipcode}, minPrice: {minPrice}, maxPrice: {maxPrice}, minsqft: {minsqft}, bedrooms: {bedrooms}, homeType: {homeType}")
     # sync_new_listings(zipcode, db)
 
-    # Return Properties from database
-    properties = db.query(Property).filter(Property.zipcode == zipcode).all()
-    #print(f"[QUERY RESULT] {properties}")
+    # Build the base query
+    query = db.query(Property).filter(Property.zipcode == zipcode)
+
+    # Apply filters if provided
+    if minPrice is not None:
+        query = query.filter(Property.listing_price >= minPrice)
+    if maxPrice is not None:
+        query = query.filter(Property.listing_price <= maxPrice)
+    if minsqft is not None:
+        query = query.filter(Property.sqft >= minsqft)
+    if bedrooms is not None:
+        query = query.filter(Property.beds >= bedrooms)
+    if homeType is not None:
+        query = query.filter(Property.home_type == homeType)
+
+    # Execute the query
+    properties = query.all()
+    print(f"[QUERY RESULT] {properties}")
 
     return [prop.to_dict() for prop in properties]
-
 
 @router.get("/property/{property_id}/{strategy}")
 def get_property_by_id(property_id: int, db: Session = Depends(get_db)):

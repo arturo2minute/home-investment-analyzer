@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CircleHelp } from "lucide-react";
+import { CircleHelp, ChevronDown, ChevronUp } from "lucide-react";
 
 const strategies = [
   {id: "buy_and_live_and_rent",
@@ -42,6 +42,12 @@ export default function SearchPage() {
   const [openDescriptions, setOpenDescriptions] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false); // Filter closed by default
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minsqft, setMinsqft] = useState("");
+  const [bedrooms, setBedrooms] = useState("");
+  const [homeType, setHomeType] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,14 +64,21 @@ export default function SearchPage() {
     const zip = queryParams.get("zipcode");
     if (zip) {
       setZipcode(zip);
-      fetchProperties(zip);
+      fetchProperties(zip, { minPrice, maxPrice, minsqft, bedrooms, homeType });
     }
   }, [location.search]);
 
-  const fetchProperties = async (zip) => {
+  const fetchProperties = async (zip, filters = {}) => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8000/properties?zipcode=${zip}`);
+      const { minPrice, maxPrice, minsqft, bedrooms, homeType } = filters;
+      const query = new URLSearchParams({ zipcode: zip });
+      if (minPrice) query.append("minPrice", minPrice);
+      if (maxPrice) query.append("maxPrice", maxPrice);
+      if (minsqft) query.append("minsqft", minsqft);
+      if (bedrooms) query.append("bedrooms", bedrooms);
+      if (homeType) query.append("homeType", homeType);
+      const res = await axios.get(`http://localhost:8000/properties?${query.toString()}`);
       setProperties(res.data);
     } catch (err) {
       console.error("Error fetching properties:", err);
@@ -74,7 +87,6 @@ export default function SearchPage() {
     }
   };
 
-  // Function handles search capabilities
   const handleSearch = async () => {
     console.log("Searching ZIP:", zipcode);
 
@@ -84,14 +96,19 @@ export default function SearchPage() {
     navigate(`/?zipcode=${zipcode}`);
   };
 
+  const handleApplyFilters = () => {
+    if (!zipcode) return;
+    setHasSearched(true);
+    fetchProperties(zipcode, { minPrice, maxPrice, minsqft, bedrooms, homeType });
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Mobile Sidebar Toggle */}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="bg-teal text-white px-4 py-2 rounded-md shadow-lg"
-        >
+          className="bg-teal text-white px-4 py-2 rounded-md shadow-lg">
           ☰
         </button>
       </div>
@@ -136,11 +153,11 @@ export default function SearchPage() {
         })}
       </aside>
 
-      <main className="flex-1 p-6 max-w-8xl mx-auto pt-20 md:pt-6">
+      <main className="flex-1 max-w-8xl mx-auto">
         {/* Sticky Container for Header and Horizontal Menu */}
-        <div className="sticky top-0 p-2 mx-[-1.5rem] z-10 bg-white">
+        <div className="sticky pb-1 top-0 mx-[-1.5rem] z-10 bg-white">
           {/* Header */}
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex pt-1 items-center justify-center">
             <img src="/logo.png" alt="Valora Logo" className="h-10 w-10 mr-2" />
             <h1 className="text-3xl font-bold text-dark-gray">Valora</h1>
           </div>
@@ -186,26 +203,82 @@ export default function SearchPage() {
             className="relative py-60"
             style={{ backgroundImage: `url('/home.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <div className="absolute inset-0 bg-black opacity-30"></div>
-              {/* Sticky Search Bar */}
-              <div className="sticky top-[6rem] flex items-center justify-center gap-4">
-                <input
-                  type="text"
-                  placeholder="Enter ZIP code"
-                  value={zipcode}
-                  onChange={(e) => setZipcode(e.target.value)}
-                  className="border border-light-gray px-4 py-2 rounded w-48"/>
-                <button
-                  onClick={handleSearch}
-                  className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray">
-                  Search
-                </button>
+            {/* Sticky Search Bar */}
+            <div className="sticky top-[6rem] flex items-center justify-center gap-4">
+              <input
+                type="text"
+                placeholder="Enter ZIP code"
+                value={zipcode}
+                onChange={(e) => setZipcode(e.target.value)}
+                className="border border-light-gray px-4 py-2 rounded w-48 bg-white shadow-sm"
+              />
+              <button
+                onClick={handleSearch}
+                className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Section with Toggle */}
+        <div className="max-w-7xl mx-auto mb-6">
+          <div className="bg-light-gray p-2 rounded-2xl shadow-lg">
+            <div className="flex justify-between px-2 pt-1 items-center mb-2">
+              <h2 className="text-xl font-bold text-dark-gray">Filter</h2>
+              <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="bg-teal text-white rounded-full hover:bg-soft-teal">
+                {isFilterOpen ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+              </button>
+            </div>
+            {isFilterOpen && (
+              <div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 px-2">
+                  <div>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">Min Price</label>
+                    <input type="number" placeholder="Min Price" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="border border-light-gray px-4 py-2 rounded w-full bg-white shadow-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">Max Price</label>
+                    <input type="number" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="border border-light-gray px-4 py-2 rounded w-full bg-white shadow-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">Min sqft</label>
+                    <input type="number" placeholder="Min sqft" value={minsqft} onChange={(e) => setMinsqft(e.target.value)} className="border border-light-gray px-4 py-2 rounded w-full bg-white shadow-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">Bedrooms</label>
+                    <select value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="border border-light-gray px-4 py-2 rounded w-full bg-white shadow-sm">
+                      <option value="">Any</option>
+                      <option value="1">1+</option>
+                      <option value="2">2+</option>
+                      <option value="3">3+</option>
+                      <option value="4">4+</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-dark-gray mb-1">Home Type</label>
+                    <select value={homeType} onChange={(e) => setHomeType(e.target.value)} className="border border-light-gray px-4 py-2 rounded w-full bg-white shadow-sm">
+                      <option value="">Any</option>
+                      <option value="Single Family">Single Family</option>
+                      <option value="Land">Land</option>
+                      <option value="Mobile">Mobile</option>
+                      <option value="Multi Family">Multi Family</option>
+                      <option value="Apartment">Apartment</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-center pb-2">
+                  <button onClick={handleApplyFilters} className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray">Apply Filters</button>
+                </div>
               </div>
+            )}
           </div>
         </div>
 
         {/* Use Message */}
         {!hasSearched && properties.length === 0 && (
-          <div className="bg-light-gray border border-teal text-dark-gray p-6 rounded-xl mb-10 shadow-sm max-w-7xl mx-auto">
+          <div className="bg-light-gray border border-teal text-dark-gray p-5 rounded-xl mb-10 shadow-sm max-w-7xl mx-auto">
             <h2 className="text-2xl font-bold mb-2 text-dark-gray">Welcome to the Home Investment Analyzer! 🏡</h2>
             <p className="mb-2 text-dark-gray">
               This tool helps you evaluate potential real estate deals across multiple investment strategies — like Buy & Hold, BRRRR, Short-Term Rentals, and more.

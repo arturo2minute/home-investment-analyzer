@@ -57,7 +57,9 @@ def land_type(type):
         return "Land"
     elif type == "MULTI_FAMILY":
         return "Multi Family"
-
+    elif type == "APARTMENT":
+        return "Apartment"
+    
 def add_dash(val):
     if val == None or val == "" or val == " ":
         return "--"
