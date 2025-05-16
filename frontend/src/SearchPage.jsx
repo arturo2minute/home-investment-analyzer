@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronUp, CircleHelp } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 
 const strategies = [
   {id: "buy_and_live_and_rent",
@@ -41,6 +41,7 @@ export default function SearchPage() {
   const [analysisType, setAnalysisType] = useState("buy_and_live_and_rent");
   const [openDescriptions, setOpenDescriptions] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,6 +80,7 @@ export default function SearchPage() {
 
     if (!zipcode) return;
 
+    setHasSearched(true);
     navigate(`/?zipcode=${zipcode}`);
   };
 
@@ -184,24 +186,25 @@ export default function SearchPage() {
             className="relative py-60"
             style={{ backgroundImage: `url('/home.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <div className="absolute inset-0 bg-black opacity-30"></div>
-            <div className="relative z-10 flex items-center justify-center gap-4">
-              <input
-                type="text"
-                placeholder="Enter ZIP code"
-                value={zipcode}
-                onChange={(e) => setZipcode(e.target.value)}
-                className="border border-light-gray px-4 py-2 rounded w-48"/>
-              <button
-                onClick={handleSearch}
-                className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray">
-                Search
-              </button>
-            </div>
+              {/* Sticky Search Bar */}
+              <div className="sticky top-[6rem] flex items-center justify-center gap-4">
+                <input
+                  type="text"
+                  placeholder="Enter ZIP code"
+                  value={zipcode}
+                  onChange={(e) => setZipcode(e.target.value)}
+                  className="border border-light-gray px-4 py-2 rounded w-48"/>
+                <button
+                  onClick={handleSearch}
+                  className="bg-teal text-white px-4 py-2 rounded hover:bg-soft-teal hover:text-med-gray">
+                  Search
+                </button>
+              </div>
           </div>
         </div>
 
         {/* Use Message */}
-        {!zipcode && properties.length === 0 && (
+        {!hasSearched && properties.length === 0 && (
           <div className="bg-light-gray border border-teal text-dark-gray p-6 rounded-xl mb-10 shadow-sm max-w-7xl mx-auto">
             <h2 className="text-2xl font-bold mb-2 text-dark-gray">Welcome to the Home Investment Analyzer! 🏡</h2>
             <p className="mb-2 text-dark-gray">
