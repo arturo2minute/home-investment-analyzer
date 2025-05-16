@@ -135,43 +135,45 @@ export default function SearchPage() {
       </aside>
 
       <main className="flex-1 p-6 max-w-8xl mx-auto pt-20 md:pt-6">
+        {/* Sticky Container for Header and Horizontal Menu */}
+        <div className="sticky top-0 p-2 mx-[-1.5rem] z-10 bg-white">
+          {/* Header */}
+          <div className="flex items-center justify-center mb-4">
+            <img src="/logo.png" alt="Valora Logo" className="h-10 w-10 mr-2" />
+            <h1 className="text-3xl font-bold text-dark-gray">Valora</h1>
+          </div>
 
-        {/* Header */}
-        <div className="flex items-center justify-center mb-4">
-          <img src="/logo.png" alt="Valora Logo" className="h-10 w-10 mr-2" />
-          <h1 className="text-3xl font-bold text-dark-gray">Valora</h1>
-        </div>
+          {/* Horizontal Menu (Visible on md and up) */}
+          <div className="hidden md:block mb-4">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(120px,auto))] justify-center">
+                {strategies.map((s) => {
+                  const isOpen = openDescriptions[s.id];
+                  const isSelected = analysisType === s.id;
 
-        {/* Horizontal Menu (Visible on md and up) */}
-        <div className="hidden md:block mb-4">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(120px,auto))] justify-center">
-              {strategies.map((s) => {
-                const isOpen = openDescriptions[s.id];
-                const isSelected = analysisType === s.id;
-
-                return (
-                  <div key={s.id} className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <button
-                        onClick={() => setAnalysisType(s.id)}
-                        className={`w-full text-left py-2 px-3 rounded-md font-medium flex items-center gap-2 ${
-                          isSelected ? "bg-teal text-white" : "text-dark-gray hover:bg-soft-teal"
-                        }`}>
-                        {s.label}
-                      </button>
-                      <button
-                        onClick={() => toggleDescription(s.id)}
-                        className="p-1 text-dark-gray">
-                        {isOpen ? <CircleHelp size={16} /> : <CircleHelp size={16} />}
-                      </button>
+                  return (
+                    <div key={s.id} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={() => setAnalysisType(s.id)}
+                          className={`w-full text-left py-2 px-3 rounded-md font-medium flex items-center gap-2 ${
+                            isSelected ? "bg-teal text-white" : "text-dark-gray hover:bg-soft-teal"
+                          }`}>
+                          {s.label}
+                        </button>
+                        <button
+                          onClick={() => toggleDescription(s.id)}
+                          className="p-1 text-dark-gray">
+                          {isOpen ? <CircleHelp size={16} /> : <CircleHelp size={16} />}
+                        </button>
+                      </div>
+                      {isOpen && (
+                        <p className="text-sm text-dark-gray px-3">{s.description}</p>
+                      )}
                     </div>
-                    {isOpen && (
-                      <p className="text-sm text-dark-gray px-3">{s.description}</p>
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
