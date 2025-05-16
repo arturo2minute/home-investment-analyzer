@@ -75,6 +75,47 @@ def get_properties(
 
     return [prop.to_dict() for prop in properties]
 
+@router.get("/comparables")
+def get_comparables(
+    zipcode: str,
+    sqft: int,
+    lot_size: float,
+    year_built: int,
+    beds: int,
+    baths: float,
+    home_type: str,
+    address: str,
+    db: Session = Depends(get_db)
+):
+    # Build the base query with exact matches
+    query = db.query(Property).filter(
+        Property.zipcode == zipcode,
+        Property.home_type == home_type,
+        Property.address != address
+    )
+
+    # Define variance and range constants
+    sqft_variance = 0.1  # 10% variance
+    lot_size_variance = 0.2  # 10% variance
+    year_built_range = 10  # ±5 years
+
+    # Apply range-based filters
+    query = query.filter(Property.sqft >= sqft * (1 - sqft_variance))
+    query = query.filter(Property.sqft <= sqft * (1 + sqft_variance))
+    query = query.filter(Property.lot_size >= lot_size * (1 - lot_size_variance))
+    query = query.filter(Property.lot_size <= lot_size * (1 + lot_size_variance))
+    query = query.filter(Property.year_built >= year_built - year_built_range)
+    query = query.filter(Property.year_built <= year_built + year_built_range)
+    query = query.filter(Property.beds >= beds - 1)
+    query = query.filter(Property.beds <= beds + 1)
+    query = query.filter(Property.baths >= baths - 1)
+    query = query.filter(Property.baths <= baths + 1)
+
+    # Execute the query and return results
+    properties = query.all()
+    print(f"[QUERY COMP RESULT] {properties}")
+    return [prop.to_dict() for prop in properties]
+
 @router.get("/property/{property_id}/{strategy}")
 def get_property_by_id(property_id: int, db: Session = Depends(get_db)):
     property = db.query(Property).filter(Property.id == property_id).first()

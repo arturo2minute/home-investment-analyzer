@@ -1,4 +1,3 @@
-// src/pages/BuyRent.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import 'swiper/css';
@@ -8,19 +7,19 @@ import {MapPin, Home, Bed, Bath, Ruler, LandPlot, Calendar, Layers, DollarSign, 
 import 'katex/dist/katex.min.css';
 import { BlockMath } from 'react-katex';
 
-
 export default function BuyRent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
+  const [compProperties, setCompProperties] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [showNOIFormula, setShowNOIFormula] = useState(false);
   const [showCapFormula, setShowCapFormula] = useState(false);
   const [showCoCFormula, setShowCoCFormula] = useState(false);
   const [showCashFlowFormula, setShowCashFlowFormula] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
     expected_profit: 0,
@@ -64,20 +63,41 @@ export default function BuyRent() {
     vacancy: 5,
     maintenance: 5,
     capex: 5,
-    managment: 5
+    management: 5
   });
 
-  // Gather general property info from database
+  // Fetch property and comparable properties
   useEffect(() => {
-    const fetchProperty = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const res = await axios.get(`http://localhost:8000/property/${id}/buy_and_rent`);
-        setProperty(res.data);
+        // Fetch property details
+        const propRes = await axios.get(`http://localhost:8000/property/${id}/buy_and_rent`);
+        setProperty(propRes.data);
+
+        // Fetch comparable properties using property data
+        if (propRes.data) {
+          const query = new URLSearchParams({
+            zipcode: propRes.data.zipcode || '',
+            sqft: propRes.data.sqft || 0,
+            lot_size: propRes.data.lot_size || 0,
+            year_built: propRes.data.year_built || 0,
+            beds: propRes.data.beds || 0,
+            baths: propRes.data.baths || 0,
+            home_type: propRes.data.home_type || '',
+            address: propRes.data.address || ''
+          });
+          const compRes = await axios.get(`http://localhost:8000/comparables?${query.toString()}`);
+          setCompProperties(compRes.data);
+        }
       } catch (error) {
-        console.error("Failed to fetch property:", error);
+        console.error("Failed to fetch data:", error);
+        setError("Failed to load property or comparable properties.");
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchProperty();
+    fetchData();
   }, [id]);
 
   // Update inputs based on property data
@@ -155,7 +175,7 @@ export default function BuyRent() {
               <p className="flex items-center gap-2">{property.address}</p>
               <p className="flex items-center gap-2">{property.city}, {property.state}, {property.zipcode}</p>
               <p className="flex items-center gap-2"><DollarSign size={16} /><strong>Price:</strong> ${property.listing_price?.toLocaleString()}</p>
-              <p className="flex items-center gap-2"><DollarSign size={16} /><strong>Pice Per sqft:</strong> ${property.price_per_sqft?.toLocaleString()}</p>
+              <p className="flex items-center gap-2"><DollarSign size={16} /><strong>Price Per sqft:</strong> ${property.price_per_sqft?.toLocaleString()}</p>
               <p className="flex items-center gap-2"><Ruler size={16} /><strong>Sqft:</strong> {property.sqft?.toLocaleString() ?? "N/A"}</p>
               <p className="flex items-center gap-2"><Bed size={16} /><strong>Beds:</strong> {property.beds}</p>
               <p className="flex items-center gap-2"><Bath size={16} /> <strong>Baths:</strong> {property.baths}</p>
@@ -345,7 +365,7 @@ export default function BuyRent() {
               {/* Variable Landlord-Paid Expenses */}
               <h3 className="text-lg font-semibold text-dark-gray mb-2">Variable Landlord-Paid Expenses (%)</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                {["vacancy", "maintenance", "capex", "managment"].map((name) => (
+                {["vacancy", "maintenance", "capex", "management"].map((name) => (
                   <div key={name}>
                     <label className="block text-sm font-medium text-dark-gray mb-1">
                       {name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
@@ -403,7 +423,6 @@ export default function BuyRent() {
             </div>
           </div>
 
-          {/* Cap Rate */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-bold text-dark-gray">Cap Rate</h3>
@@ -423,12 +442,12 @@ export default function BuyRent() {
                 {analysis ? (
                   <BlockMath math={`${analysis.cap_rate}\\% = \\frac{\\$${analysis.noi}}{\\$${analysis.purchase_price}} \\times 100`} />
                 ) : (
-                  <span>Cap Rate = (NOI / Purchase Price) × 100%</span>                )}
+                  <span>Cap Rate = (NOI / Purchase Price) × 100%</span>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Cash-on-Cash Return */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-bold text-dark-gray">Cash-on-Cash Return</h3>
@@ -454,7 +473,6 @@ export default function BuyRent() {
             </div>
           </div>
 
-          {/* Monthly Cash Flow */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-bold text-dark-gray">Monthly Cash Flow</h3>
@@ -481,6 +499,43 @@ export default function BuyRent() {
           </div>
         </div>
 
+        <div className="p-5">
+          <h2 className="text-2xl font-bold text-dark-gray mb-6">Comparable Properties</h2>
+          {isLoading ? (
+            <p className="text-dark-gray">Loading comparable properties...</p>
+          ) : compProperties.length === 0 ? (
+            <p className="text-dark-gray">No comparable properties found.</p>
+          ) : (
+            <div className="grid gap-14 grid-cols-1 max-w-7xl sm:grid-cols-2 lg:grid-cols-3 mx-auto">
+              {compProperties.map((compProperty) => (
+                <div
+                  key={compProperty.id}
+                  className="bg-light-gray rounded-2xl shadow-lg p-8 border hover:border-teal hover:shadow-xl transition hover:scale-105">
+                  <a href={compProperty.property_url} target="_blank" rel="noopener noreferrer" className="block mb-4">
+                    <img
+                      src={compProperty.image_url || "/fallback.png"}
+                      alt={`${compProperty.address} Preview`}
+                      className="w-full h-64 object-cover rounded mb-4"
+                      onError={(e) => { e.target.src = "/fallback.png"; }}
+                    />
+                  </a>
+                  <h2 className="text-xl font-semibold text-dark-gray mb-2">
+                    {compProperty.address}, {compProperty.city}, {compProperty.state}
+                  </h2>
+                  <p className="text-2xl font-medium text-green">${compProperty.listing_price.toLocaleString()}</p>
+                  <p className="text-dark-gray">
+                    {compProperty.beds === 0 ? "--" : compProperty.beds} beds | {compProperty.baths === 0 ? "--" : compProperty.baths} baths |{" "}
+                    {compProperty.sqft === 0 ? "--" : compProperty.sqft} sqft
+                  </p>
+                  <p className="text-dark-gray">
+                    {compProperty.lot_size === 0 ? "--" : compProperty.lot_size} Acres | {compProperty.home_type} | Built{" "}
+                    {compProperty.year_built === 0 ? "N/A" : compProperty.year_built}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

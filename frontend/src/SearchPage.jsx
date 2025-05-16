@@ -304,8 +304,7 @@ export default function SearchPage() {
                   alt={`${property.address} Preview`}
                   className="w-full h-64 object-cover rounded mb-4"
                   onError={(e) => {
-                    e.target.src = "/fallback.png";}}
-                />
+                    e.target.src = "/fallback.png";}}/>
               </a>
               <h2 className="text-xl font-semibold text-dark-gray mb-2">
                 {property.address}, {property.city}, {property.state}
