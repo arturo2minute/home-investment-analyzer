@@ -125,7 +125,7 @@ export default function BuyRent() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed md:sticky top-0 left-0 md:h-screen min-h-screen bg-light-gray border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out
+      <aside className={`fixed md:sticky top-0 left-0 h-screen bg-light-gray border-r p-6 space-y-4 z-40 w-72 overflow-y-auto transform transition-transform duration-300 ease-in-out
                         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
         {/* Close button for mobile */}
         <div className="md:hidden flex justify-end mb-4">
