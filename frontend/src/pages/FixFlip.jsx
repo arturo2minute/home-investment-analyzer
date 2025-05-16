@@ -15,17 +15,15 @@ export default function BuyRent() {
   const [property, setProperty] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [showNOIFormula, setShowNOIFormula] = useState(false);
-  const [showCapFormula, setShowCapFormula] = useState(false);
-  const [showCoCFormula, setShowCoCFormula] = useState(false);
-  const [showCashFlowFormula, setShowCashFlowFormula] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
+    expected_profit: 50000,
     closing_costs: 6500,
     rehab: 25000,
-    arv: 390000,
+    arv: 600000,
 
     cash: false,
     down_payment: 8.33,
@@ -50,7 +48,7 @@ export default function BuyRent() {
     selling_months: 0,
 
     yearly_taxes: 2450,
-    monthly_insurance: 1100,
+    monthly_insurance: 120,
     cleaning: 0,
     internet: 0,
     hoa_fees: 50,
@@ -105,7 +103,7 @@ export default function BuyRent() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.post("http://localhost:8000/analyze-buy-rent-deal", inputs);
+      const response = await axios.post("http://localhost:8000/analyze-fix-flip", inputs);
       setAnalysis(response.data);
     } catch (error) {
       console.error("Error analyzing deal:", error);
@@ -228,7 +226,7 @@ export default function BuyRent() {
               {/* Purchase Details */}
               <h3 className="text-lg font-semibold text-dark-gray mb-2">Purchase Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                {["purchase_price", "closing_costs", "rehab", "arv"].map((name) => (
+                {["expected_profit", "closing_costs", "rehab", "arv"].map((name) => (
                   <div key={name}>
                     <label className="block text-sm font-medium text-dark-gray mb-1">
                       {name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
@@ -261,36 +259,26 @@ export default function BuyRent() {
                 </div>
                 {!inputs.cash && (
                   <>
-                    {["down_payment", "interest_rate", "lender_charges", "loan_fees_wrapped", "pmi", "years_amortized"].map((name) => (
+                    {["down_payment", "interest_rate", "lender_charges", "loan_fees_wrapped", "pmi", "years_amortized", "interest_only"].map((name) => (
                       <div key={name}>
                         <label className="block text-sm font-medium text-dark-gray mb-1">
                           {name === "down_payment" ? "Down Payment (%)" : 
-                           name === "loan_fees_wrapped" ? "Loan Fees Wrapped" : 
-                           name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                          name === "loan_fees_wrapped" ? "Loan Fees Wrapped" : 
+                          name === "interest_only" ? "Interest Only?" : 
+                          name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
                         </label>
                         <input
-                          type={name === "loan_fees_wrapped" ? "checkbox" : "number"}
+                          type={name === "loan_fees_wrapped" || name === "interest_only" ? "checkbox" : "number"}
                           name={name}
-                          value={name === "loan_fees_wrapped" ? undefined : inputs[name]}
-                          checked={name === "loan_fees_wrapped" ? inputs[name] : undefined}
+                          value={name === "loan_fees_wrapped" || name === "interest_only" ? undefined : inputs[name]}
+                          checked={name === "loan_fees_wrapped" || name === "interest_only" ? inputs[name] : undefined}
                           onChange={handleInputChange}
-                          className={name === "loan_fees_wrapped" ? "w-4 h-4" : "w-full border rounded px-3 py-2 text-sm"}
-                          placeholder={name === "loan_fees_wrapped" ? undefined : "0"}/>
+                          className={name === "loan_fees_wrapped" || name === "interest_only" ? "w-4 h-4" : "w-full border rounded px-3 py-2 text-sm"}
+                          placeholder={name === "loan_fees_wrapped" || name === "interest_only" ? undefined : "0"}/>
                       </div>
                     ))}
                   </>
                 )}
-                <div>
-                  <label className="block text-sm font-medium text-dark-gray mb-1">
-                    Interest Only?
-                  </label>
-                  <input
-                    type="checkbox"
-                    name="cash"
-                    checked={inputs.interest_only}
-                    onChange={handleInputChange}
-                    className="w-4 h-4"/>
-                </div>
               </div>
             </div>
           </div>
@@ -353,12 +341,12 @@ export default function BuyRent() {
         </div>
 
         {/* Deal Analysis */}
-        <div className="grid p-5 gap-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="grid p-5 gap-14 grid-cols-1">
 
-          {/* NOI */}
+          {/* Potential Profit */}
           <div className="p-6 bg-white rounded-xl shadow border">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold text-dark-gray">Net Operating Income</h3>
+              <h3 className="text-lg font-bold text-dark-gray">Maximum Allowable Offer</h3>
               <button
                 onClick={() => setShowNOIFormula(!showNOIFormula)}
                 className="p-1 text-dark-gray hover:text-dark-gray">
@@ -367,92 +355,15 @@ export default function BuyRent() {
             </div>
             {showNOIFormula && (
               <div className="mt-2 text-sm text-dark-gray">
-                <span>NOI = Gross Rental Income - Operating Expenses</span>
+                <span>MAO = ARV - Expected Profit - Rehab - Closing Costs - Holding Costs - Loan Costs</span>
               </div>
             )}
             <div className="flex items-center justify-center flex-col">
               <div className="text-lg md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
                 {analysis ? (
-                  <BlockMath math={`\\$${analysis.noi} = \\$${analysis.annual_gross_income} - \\$${analysis.annual_operating_expenses}`} />
+                  <BlockMath math={`\\$${analysis.mao} = \\$${analysis.arv} - \\$${analysis.expected_profit} - \\$${analysis.rehab} - \\$${analysis.closing_costs} - \\$${analysis.holding_costs} - \\$${analysis.loan_costs}`} />
                 ) : (
-                  <span>NOI = Gross Rental Income - Operating Expenses</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Cap Rate */}
-          <div className="p-6 bg-white rounded-xl shadow border">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold text-dark-gray">Cap Rate</h3>
-              <button
-                onClick={() => setShowCapFormula(!showCapFormula)}
-                className="p-1 text-dark-gray hover:text-dark-gray">
-                <CircleHelp size={16} />
-              </button>
-            </div>
-            {showCapFormula && (
-              <div className="mt-2 text-sm text-dark-gray">
-                <span>Cap Rate = (NOI / Purchase Price) × 100%</span> 
-              </div>
-            )}
-            <div className="flex items-center justify-center flex-col">
-              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
-                {analysis ? (
-                  <BlockMath math={`${analysis.cap_rate}\\% = \\frac{\\$${analysis.noi}}{\\$${analysis.purchase_price}} \\times 100`} />
-                ) : (
-                  <span>Cap Rate = (NOI / Purchase Price) × 100%</span>                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Cash-on-Cash Return */}
-          <div className="p-6 bg-white rounded-xl shadow border">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold text-dark-gray">Cash-on-Cash Return</h3>
-              <button
-                onClick={() => setShowCoCFormula(!showCoCFormula)}
-                className="p-1 text-dark-gray hover:text-dark-gray">
-                <CircleHelp size={16} />
-              </button>
-            </div>
-            {showCoCFormula && (
-              <div className="mt-2 text-sm text-slate-700">
-                <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>
-              </div>
-            )}
-            <div className="flex items-center justify-center flex-col">
-              <div className="text-lg md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
-                {analysis ? (
-                  <BlockMath math={`${analysis.coc_return}\\% = \\frac{\\$${analysis.annual_cash_flow}}{\\$${analysis.total_cash_invested}} \\times 100`} />
-                ) : (
-                  <span>CoC Return = (Annual Cash Flow / Total Cash Invested) × 100%</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Monthly Cash Flow */}
-          <div className="p-6 bg-white rounded-xl shadow border">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-bold text-dark-gray">Monthly Cash Flow</h3>
-              <button
-                onClick={() => setShowCashFlowFormula(!showCashFlowFormula)}
-                className="p-1 text-dark-gray hover:text-dark-gray">
-                <CircleHelp size={16} />
-              </button>
-            </div>
-            {showCashFlowFormula && (
-              <div className="mt-2 text-sm text-slate-700">
-                <span>Cash Flow = (NOI / 12) - Mortgage Payment</span>
-              </div>
-            )}
-            <div className="flex items-center justify-center flex-col">
-              <div className="text-md md:text-xl lg:text-2xl font-semibold text-dark-gray overflow-x-auto whitespace-normal max-w-full">
-                {analysis ? (
-                  <BlockMath math={`\\$${analysis.monthly_cash_flow} = \\frac{\\$${analysis.noi}}{\\text{12}} - \\$${analysis.monthly_mortgage}`} />
-                ) : (
-                  <span>Cash Flow = (NOI / 12) - Mortgage Payment</span>
+                  <span>MAO = ARV - Expected Profit - Rehab - Closing Costs - Holding Costs - Loan Costs</span>
                 )}
               </div>
             </div>

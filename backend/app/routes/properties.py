@@ -144,40 +144,68 @@ def analyze_buy_rent_deal(inputs: DealInputs):
 
 @router.post("/analyze-fix-flip")
 def analyze_fix_flip(inputs: DealInputs):
-    #print("Received Inputs:", inputs.dict())
+    print("Received Inputs:", inputs.dict())
 
-    ## Calculate NOI
-    noi, annual_gross_income, annual_operating_expenses = calculate_noi(inputs)
-    
-    ## Calculate Cap Rate
-    cap_rate = calculate_cap_rate(noi, inputs.purchase_price)
+    # Calculate holding costs
+    total_monthly_holding_costs = (
+        inputs.yearly_taxes / 12 +
+        inputs.monthly_insurance +
+        inputs.cleaning +
+        inputs.internet +
+        inputs.hoa_fees +
+        inputs.gas +
+        inputs.electricity +
+        inputs.watersewer +
+        inputs.garbage +
+        inputs.other
+    )
+    holding_months = inputs.rehab_months + inputs.selling_months
+    holding_costs = total_monthly_holding_costs * holding_months
 
-    ## Calculate Monthly Mortgage
-    monthly_mortgage, down_payment_amount, closing_costs = calculate_monthly_mortgage(inputs)
-
-    ## Calculate Monthly Cash Flow
-    annual_cash_flow, monthly_cash_flow, annual_mortgage = calculate_cash_flow(noi, monthly_mortgage)
-    
-    ## Calculate Cash-on-Cash return
+    # Calculate MAO and Loan Costs
     if inputs.cash == True:
-        total_cash_invested = inputs.purchase_price + inputs.closing_costs + inputs.rehab
+        mao = inputs.arv - inputs.rehab - inputs.expected_profit - inputs.closing_costs - holding_costs
+        loan_costs = 0
     else:
-        total_cash_invested = down_payment_amount + closing_costs + inputs.rehab
+        down_payment_rate = inputs.down_payment / 100
+        monthly_interest_rate = inputs.interest_rate / 100 / 12
+        loan_term_months = inputs.years_amortized * 12
 
-    coc_return = calculate_CoC_return(annual_cash_flow, total_cash_invested)
+        # Apply correct finance formula
+        denominator = 1 + (1 - down_payment_rate) * monthly_interest_rate * holding_months
+        numerator = inputs.arv - inputs.expected_profit - inputs.rehab - inputs.closing_costs - holding_costs
 
+        mao_initial = numerator / denominator
+        loan_amount = mao_initial * (1 - down_payment_rate)
+        if inputs.interest_only == True:
+            # Interest-only monthly payment
+            monthly_payment = loan_amount * monthly_interest_rate
+        else:
+            # Fully amortized monthly payment (standard mortgage calculation)
+            if loan_term_months > 0 and monthly_interest_rate > 0:
+                monthly_payment = loan_amount * (monthly_interest_rate * (1 + monthly_interest_rate) ** loan_term_months) / \
+                                  ((1 + monthly_interest_rate) ** loan_term_months - 1)
+            else:
+                monthly_payment = 0  # Handle zero rate or term to avoid division by zero
+
+        # Total loan costs over the holding period
+        loan_costs = monthly_payment * holding_months
+
+        # Final MAO subtracting loan costs
+        mao = mao_initial - loan_costs
+
+    # Return all required values
+    print("Output:")
+    print(f"mao:{round(mao, 2)} arv: {round(inputs.arv, 2)} inputs.expected_profit: {round(inputs.expected_profit, 2)} rehab: {round(inputs.rehab, 2)} closing_costs: {round(inputs.closing_costs, 2)} holding_costs: {round(holding_costs, 2)} loan_costs: {round(loan_costs, 2)}")
+    
     return {
-        "noi": round(noi, 2),
-        "cap_rate": round(cap_rate, 2),
-        "coc_return": round(coc_return, 2),
-        "monthly_cash_flow": round(monthly_cash_flow, 2),
-        "annual_gross_income": round(annual_gross_income, 2),
-        "annual_operating_expenses": round(annual_operating_expenses, 2),
-        "purchase_price": round(inputs.purchase_price, 2),
-        "annual_cash_flow": round(annual_cash_flow, 2),
-        "total_cash_invested": round(total_cash_invested, 2),
-        "annual_mortgage": round(annual_mortgage, 2),
-        "monthly_mortgage": round(monthly_mortgage, 2)
+        "mao": round(mao, 2),
+        "arv": round(inputs.arv, 2),
+        "expected_profit": round(inputs.expected_profit, 2),
+        "rehab": round(inputs.rehab, 2),
+        "closing_costs": round(inputs.closing_costs, 2),
+        "holding_costs": round(holding_costs, 2),
+        "loan_costs": round(loan_costs, 2),
     }
 
 # # Pydantic model for input validation

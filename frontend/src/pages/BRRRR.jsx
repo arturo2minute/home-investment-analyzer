@@ -299,7 +299,13 @@ export default function BuyRent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {!inputs.cash && (
                   <>
-                    <h3 className="text-lg font-semibold text-dark-gray mb-2">Refinance Loan Details</h3>
+                  <h3 className="text-lg font-semibold text-dark-gray mb-2">Refinance Loan Details</h3>
+                  </>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {!inputs.cash && (
+                  <>
                     {["refinance_loan_amount", "refinance_interest_rate", "refinance_lender_charges", "refinance_loan_fees_wrapped", "refinance_pmi", "refinance_years_amortized"].map((name) => (
                       <div key={name}>
                         <label className="block text-sm font-medium text-dark-gray mb-1">
