@@ -13,14 +13,15 @@ export default function BuyRent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
+  const [compProperties, setCompProperties] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [showNOIFormula, setShowNOIFormula] = useState(false);
   const [showCapFormula, setShowCapFormula] = useState(false);
   const [showCoCFormula, setShowCoCFormula] = useState(false);
   const [showCashFlowFormula, setShowCashFlowFormula] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [inputs, setInputs] = useState({
     purchase_price: 300000,
     expected_profit: 0,
@@ -67,17 +68,38 @@ export default function BuyRent() {
     managment: 5
   });
 
-  // Gather general property info from database
+  // Fetch property and comparable properties
   useEffect(() => {
-    const fetchProperty = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const res = await axios.get(`http://localhost:8000/property/${id}/buy_and_live_and_rent`);
-        setProperty(res.data);
+        // Fetch property details
+        const propRes = await axios.get(`http://localhost:8000/property/${id}/buy_and_rent`);
+        setProperty(propRes.data);
+
+        // Fetch comparable properties using property data
+        if (propRes.data) {
+          const query = new URLSearchParams({
+            zipcode: propRes.data.zipcode || '',
+            sqft: propRes.data.sqft || 0,
+            lot_size: propRes.data.lot_size || 0,
+            year_built: propRes.data.year_built || 0,
+            beds: propRes.data.beds || 0,
+            baths: propRes.data.baths || 0,
+            home_type: propRes.data.home_type || '',
+            address: propRes.data.address || ''
+          });
+          const compRes = await axios.get(`http://localhost:8000/comparables?${query.toString()}`);
+          setCompProperties(compRes.data);
+        }
       } catch (error) {
-        console.error("Failed to fetch property:", error);
+        console.error("Failed to fetch data:", error);
+        setError("Failed to load property or comparable properties.");
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchProperty();
+    fetchData();
   }, [id]);
 
   // Update inputs based on property data
@@ -481,6 +503,45 @@ export default function BuyRent() {
           </div>
         </div>
 
+        {/* Comparables */}
+        <div className="p-5">
+          <h2 className="text-2xl font-bold text-dark-gray mb-6">Comparable Properties</h2>
+          {isLoading ? (
+            <p className="text-dark-gray">Loading comparable properties...</p>
+          ) : compProperties.length === 0 ? (
+            <p className="text-dark-gray">No comparable properties found.</p>
+          ) : (
+            <div className="grid gap-14 grid-cols-1 max-w-7xl sm:grid-cols-2 lg:grid-cols-3 mx-auto">
+              {compProperties.map((compProperty) => (
+                <div
+                  key={compProperty.id}
+                  className="bg-light-gray rounded-2xl shadow-lg p-8 border hover:border-teal hover:shadow-xl transition hover:scale-105">
+                  <a href={compProperty.property_url} target="_blank" rel="noopener noreferrer" className="block mb-4">
+                    <img
+                      src={compProperty.image_url || "/fallback.png"}
+                      alt={`${compProperty.address} Preview`}
+                      className="w-full h-64 object-cover rounded mb-4"
+                      onError={(e) => { e.target.src = "/fallback.png"; }}
+                    />
+                  </a>
+                  <h2 className="text-xl font-semibold text-dark-gray mb-2">
+                    {compProperty.address}, {compProperty.city}, {compProperty.state}
+                  </h2>
+                  <p className="text-2xl font-medium text-green">${compProperty.listing_price.toLocaleString()}</p>
+                  <p className="text-dark-gray">
+                    {compProperty.beds === 0 ? "--" : compProperty.beds} beds | {compProperty.baths === 0 ? "--" : compProperty.baths} baths |{" "}
+                    {compProperty.sqft === 0 ? "--" : compProperty.sqft} sqft
+                  </p>
+                  <p className="text-dark-gray">
+                    {compProperty.lot_size === 0 ? "--" : compProperty.lot_size} Acres | {compProperty.home_type} | Built{" "}
+                    {compProperty.year_built === 0 ? "N/A" : compProperty.year_built}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
       </main>
     </div>
   );

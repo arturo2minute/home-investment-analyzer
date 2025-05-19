@@ -498,7 +498,8 @@ export default function BuyRent() {
             </div>
           </div>
         </div>
-
+        
+        {/* Comparables */}
         <div className="p-5">
           <h2 className="text-2xl font-bold text-dark-gray mb-6">Comparable Properties</h2>
           {isLoading ? (

@@ -31,7 +31,6 @@ def sync_listings(zipcode, listingtype, db):
     
     for home in listings:
         # Ensure home doenst already exist in database
-        # home["zipcode"] = zipcode
         try:
             db.add(Property(**home))
             db.commit()
@@ -95,7 +94,7 @@ def get_comparables(
     address: str,
     db: Session = Depends(get_db)
     ):
-    
+
     # Build the base query with exact matches
     query = db.query(Property).filter(
         Property.zipcode == zipcode,
