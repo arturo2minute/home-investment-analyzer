@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ScrollToTop from "./ScrollToTop"; // Adjust the path if necessary
 import SearchPage from "./SearchPage";
 import BuyLiveRent from "./pages/BuyLiveRent";
 import BuyRent from "./pages/BuyRent";
@@ -12,6 +13,7 @@ import Commercial from "./pages/Commercial";
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<SearchPage />} />
         <Route path="/property/:id/buy_and_Live_and_rent" element={<BuyLiveRent />} />
