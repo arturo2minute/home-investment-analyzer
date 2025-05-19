@@ -79,11 +79,12 @@ def get_property_image(property_url):
         response = requests.get(microlink_url)
         response.raise_for_status()  # Raise an error for bad responses
         data = response.json()
-        if data is None:
-            print(f"[DEBUG] API returned None for {property_url}")
-            return "/fallback.png"
-        # Extract the image URL from the response, default to fallback if missing
-        return data.get("data", {}).get("image", {}).get("url", "/fallback.png")
+        # print(f"DATA: {data}")
+        if data and "data" in data and data["data"] is not None:
+            image_data = data["data"].get("image", {})
+            if image_data:
+                return image_data.get("url", "/fallback.png")
+        return "/fallback.png"
     except requests.RequestException as e:
         print(f"Error fetching image for {property_url}: {e}")
         return "/fallback.png"
@@ -130,7 +131,7 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
 
                 "listing_price": int(safe_float(row.get("list_price"))),
                 "listing_date": row.get("list_date"),
-                "listing_terms": None,
+                "listing_terms": row.get("listingtype", listingtype),
                 "status": row.get("status"),
 
                 "beds": safe_float(row.get("beds")),

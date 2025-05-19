@@ -20,8 +20,9 @@ def get_db():
     finally:
         db.close()
 
-def sync_new_listings(zipcode, db):
-    listings = scrape_realtor_dot_com(zipcode, 'for_sale', 1)
+
+def sync_listings(zipcode, listingtype, db):
+    listings = scrape_realtor_dot_com(zipcode, listingtype, 10)
 
     print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
 
@@ -50,12 +51,18 @@ def get_properties(
     bedrooms: Optional[int] = None,
     homeType: Optional[str] = None,
     db: Session = Depends(get_db)
-):
+    ):
+
     print(f"[DEBUG] Received zipcode: {zipcode}, minPrice: {minPrice}, maxPrice: {maxPrice}, minsqft: {minsqft}, bedrooms: {bedrooms}, homeType: {homeType}")
-    # sync_new_listings(zipcode, db)
+
+    # Sync new listings
+    # sync_listings(zipcode, 'for_sale', db)
+
+    # Sync sold listings
+    # sync_listings(zipcode, 'sold', db)
 
     # Build the base query
-    query = db.query(Property).filter(Property.zipcode == zipcode)
+    query = db.query(Property).filter(Property.zipcode == zipcode, Property.listing_terms == 'for_sale')
 
     # Apply filters if provided
     if minPrice is not None:
@@ -75,6 +82,7 @@ def get_properties(
 
     return [prop.to_dict() for prop in properties]
 
+
 @router.get("/comparables")
 def get_comparables(
     zipcode: str,
@@ -86,12 +94,14 @@ def get_comparables(
     home_type: str,
     address: str,
     db: Session = Depends(get_db)
-):
+    ):
+    
     # Build the base query with exact matches
     query = db.query(Property).filter(
         Property.zipcode == zipcode,
         Property.home_type == home_type,
-        Property.address != address
+        Property.address != address,
+        Property.listing_terms == 'sold'
     )
 
     # Define variance and range constants
@@ -116,12 +126,14 @@ def get_comparables(
     print(f"[QUERY COMP RESULT] {properties}")
     return [prop.to_dict() for prop in properties]
 
+
 @router.get("/property/{property_id}/{strategy}")
 def get_property_by_id(property_id: int, db: Session = Depends(get_db)):
     property = db.query(Property).filter(Property.id == property_id).first()
     if not property:
         raise HTTPException(status_code=404, detail="Property not found")
     return property
+
 
 # Pydantic model for input validation
 class DealInputs(BaseModel):
@@ -207,6 +219,7 @@ def analyze_buy_rent_deal(inputs: DealInputs):
         "annual_mortgage": round(annual_mortgage, 2),
         "monthly_mortgage": round(monthly_mortgage, 2)
     }
+
 
 @router.post("/analyze-fix-flip")
 def analyze_fix_flip(inputs: DealInputs):
