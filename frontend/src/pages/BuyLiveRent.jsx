@@ -229,7 +229,7 @@ export default function BuyRent() {
               <img
                 src={property.image_url || "/fallback.png"}
                 alt={`${property.address} Preview`}
-                className="w-full h-full object-cover rounded"
+                className="w-full h-full object-cover rounded max-w-[900px] max-h-[700px]"
                 onError={(e) => {
                   e.target.src = "/fallback.png";
                 }}
