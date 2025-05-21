@@ -1,8 +1,7 @@
 # models.py
 import math
 from sqlalchemy import Column, Integer, String, Float, Boolean, UniqueConstraint
-from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 class Property(Base):
