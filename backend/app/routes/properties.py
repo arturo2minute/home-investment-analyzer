@@ -1,13 +1,14 @@
 # properties.py
 import requests
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionLocal
 from typing import Optional
 from app.models import Property
 from app.scraper import scrape_realtor_dot_com
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
+from typing import Annotated, Optional
 from .calculations import *
 
 router = APIRouter()
@@ -43,7 +44,7 @@ def sync_listings(zipcode, listingtype, db):
 
 @router.get("/properties")
 def get_properties(
-    zipcode: str,
+    zipcode: Annotated[str, Query(pattern=r"^\d{5}$")],
     minPrice: Optional[float] = None,
     maxPrice: Optional[float] = None,
     minsqft: Optional[int] = None,
@@ -53,6 +54,8 @@ def get_properties(
     ):
 
     print(f"[DEBUG] Received zipcode: {zipcode}, minPrice: {minPrice}, maxPrice: {maxPrice}, minsqft: {minsqft}, bedrooms: {bedrooms}, homeType: {homeType}")
+
+
 
     # Sync new listings
     # sync_listings(zipcode, 'for_sale', db)
