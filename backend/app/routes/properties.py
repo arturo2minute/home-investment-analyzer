@@ -23,23 +23,23 @@ def get_db():
 
 
 def sync_listings(zipcode, listingtype, db):
-    listings = scrape_realtor_dot_com(zipcode, listingtype, 10)
+    listings = scrape_realtor_dot_com(zipcode, listingtype, 2)
 
     print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
 
     if not listings:
         return []
     
-    for home in listings:
-        # Ensure home doenst already exist in database
-        try:
-            db.add(Property(**home))
-            db.commit()
-        except IntegrityError:
-            db.rollback()
-            print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
+    # for home in listings:
+    #     # Ensure home doenst already exist in database
+    #     try:
+    #         db.add(Property(**home))
+    #         db.commit()
+    #     except IntegrityError:
+    #         db.rollback()
+    #         print(f"[SKIP] Duplicate: {home['address']} ({zipcode})")
 
-    db.commit()
+    # db.commit()
 
 
 @router.get("/properties")
@@ -54,8 +54,6 @@ def get_properties(
     ):
 
     print(f"[DEBUG] Received zipcode: {zipcode}, minPrice: {minPrice}, maxPrice: {maxPrice}, minsqft: {minsqft}, bedrooms: {bedrooms}, homeType: {homeType}")
-
-
 
     # Sync new listings
     # sync_listings(zipcode, 'for_sale', db)
@@ -80,6 +78,7 @@ def get_properties(
 
     # Execute the query
     properties = query.all()
+
     print(f"[QUERY RESULT] {properties}")
 
     return [prop.to_dict() for prop in properties]

@@ -2,7 +2,10 @@
 import math
 import requests
 import pandas as pd
-from homeharvest import scrape_property # type: ignore
+import os
+import homeharvest
+from homeharvest import scrape_property
+
 
 #--------------------------------- Helper Functions ---------------------------------
 
@@ -92,6 +95,16 @@ def get_property_image(property_url):
         print(f"JSON decode error for {property_url}: {e}")
         return "/fallback.png"
 
+def extract_latest_tax(tax_history: list) -> int:
+    try:
+        current_year = max([entry['year'] for entry in tax_history if 'tax' in entry and entry['tax'] is not None])
+        for entry in tax_history:
+            if entry['year'] == current_year:
+                return int(entry['tax'])
+    except Exception:
+        pass
+    return 0
+
 #--------------------------------- Main Functions ---------------------------------
 def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
 
@@ -101,6 +114,14 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
             listing_type=listingtype,
             past_days=pastdays
         )
+
+        # Add debugging prints
+        print("[DEBUG] Columns in listings:", listings.columns.tolist())
+        if 'tax_history' in listings.columns:
+            print("tax_history exists")
+            print("Sample tax_history:", listings['tax_history'].iloc[0])
+        else:
+            print("tax_history not in columns")
 
         # Handle missing data at DataFrame level
         string_cols = [
@@ -120,7 +141,7 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
         results = []
         for _, row in listings.iterrows():
 
-            image_url = get_property_image(row["property_url"])
+            image_url = "" # get_property_image(row["property_url"])
 
             results.append({
                 "address": remove_none(row.get("street", "Unknown")),
@@ -160,7 +181,7 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
                 "sewer": None,
                 "water": None,
                 "utilities": None,
-                "annual_tax": None,
+                "annual_tax": extract_latest_tax(row.get("tax_history", [])),
             })
 
         return results
@@ -192,18 +213,18 @@ def scrape_realtor_dot_com(zip_code: str, listingtype: str, pastdays: int):
 #     url = 'https://www.realtor.com/realestateandhomes-detail/2721082437'
 #     print(get_property_image(url))
     
-# if __name__ == "__main__":
-#     # 🔧 Set test inputs
-#     test_zip = "97478"
-#     test_listing_type = "for_sale"  # or "sold", "pending"
-#     test_days = 5
+if __name__ == "__main__":
+    # 🔧 Set test inputs
+    test_zip = "97404"
+    test_listing_type = "for_sale"  # or "sold", "pending"
+    test_days = 2
 
-#     # 🔍 Run the scraper and inspect results
-#     print("Scraping...")
-#     properties = scrape_realtor_dot_com(test_zip, test_listing_type, test_days)
+    # 🔍 Run the scraper and inspect results
+    print("Scraping...")
+    properties = scrape_realtor_dot_com(test_zip, test_listing_type, test_days)
 
-#     # 🧪 Print first result (or all)
-#     for i, prop in enumerate(properties[:3]):  # Limit for readability
-#         print(f"\n--- Property #{i+1} ---")
-#         for k, v in prop.items():
-#             print(f"{k}: {v}")
+    # 🧪 Print first 3 result (or all)
+    for i, prop in enumerate(properties[:3]):  # Limit for readability
+        print(f"\n--- Property #{i+1} ---")
+        for k, v in prop.items():
+            print(f"{k}: {v}")
