@@ -21,7 +21,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "dev": "concurrently \"npm:start\" \"cd ../backend && C:/Python313/python.exe run.py\""
+    "dev": "concurrently \"npm:start\" \"cd ../backend && C:/Python313/python.exe run.py\"",
+    "build": "react-scripts build",
+    "serve": "serve -s build"
   },
   "eslintConfig": {
     "extends": [
