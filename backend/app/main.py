@@ -13,7 +13,8 @@ Base.metadata.create_all(bind=engine)
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Update for production
+    allow_origins=["http://localhost:3000",
+    "https://home-investment-analyzer.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

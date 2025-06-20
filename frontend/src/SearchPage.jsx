@@ -78,7 +78,7 @@ export default function SearchPage() {
       if (minsqft) query.append("minsqft", minsqft);
       if (bedrooms) query.append("bedrooms", bedrooms);
       if (homeType) query.append("homeType", homeType);
-      const res = await axios.get(`http://localhost:8000/properties?${query.toString()}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/properties?${query.toString()}`);
       setProperties(res.data);
     } catch (err) {
       console.error("Error fetching properties:", err);
