@@ -14,7 +14,7 @@ Base.metadata.create_all(bind=engine)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000",
-    "https://home-investment-analyzer.onrender.com"],
+    "https://valora-ytlw.onrender.com/"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
