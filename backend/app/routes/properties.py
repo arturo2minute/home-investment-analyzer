@@ -23,7 +23,7 @@ def get_db():
 
 
 def sync_listings(zipcode, listingtype, db):
-    listings = scrape_realtor_dot_com(zipcode, listingtype, 5)
+    listings = scrape_realtor_dot_com(zipcode, listingtype, 10)
 
     print(f"[DEBUG] Scraper returned {len(listings) if listings else 0} results for {zipcode}")
 
@@ -57,10 +57,10 @@ def get_properties(
     print(f"[DEBUG] Received zipcode: {zipcode}, minPrice: {minPrice}, maxPrice: {maxPrice}, minsqft: {minsqft}, bedrooms: {bedrooms}, homeType: {homeType}")
 
     # Sync new listings
-    sync_listings(zipcode, 'for_sale', db)
+    # sync_listings(zipcode, 'for_sale', db)
 
     # Sync sold listings
-    # sync_listings(zipcode, 'sold', db)
+    sync_listings(zipcode, 'sold', db)
 
     # Build the base query
     query = db.query(Property).filter(Property.zipcode == zipcode, Property.listing_terms == 'for_sale')
